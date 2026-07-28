@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>數金情報站 - 金融科技知識庫</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <style>
+        .line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+        .line-clamp-4 { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+        .comparison-table td:first-child,
+        .comparison-table th:first-child {
+            position: sticky;
+            left: 0;
+            z-index: 1;
+            background: #f9fafb;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans min-h-screen flex flex-col">
+
+    <!-- head -->
+<!--     <nav class="bg-blue-900 text-white p-3 shadow-md">
+        <div class="max-w-6xl mx-auto flex flex-wrap justify-between items-center gap-2">
+            <h1 class="text-xl sm:text-2xl font-bold">金融科技情報站</h1>
+            <div class="flex flex-wrap gap-x-3 gap-y-1 text-sm sm:text-base">
+                <a href="index.html" class="hover:text-orange-300">AI 趨勢週報</a>
+                <a href="watch.html" class="hover:text-orange-300">全球金融科技觀測</a>
+                <a href="peer.html" class="hover:text-orange-300">同業概觀</a>
+                <a href="docs.html" class="hover:text-orange-300 border-b-2 border-white pb-0.5">金融科技知識庫</a>
+                <a href="report.html" class="hover:text-orange-300">AI 月度專題報告</a>
+            </div>
+        </div>
+    </nav> -->
+
+    <nav class="text-white sticky top-0 z-50" style="background:linear-gradient(135deg,#0f2460 0%,#1e3a8a 50%,#1e40af 100%);box-shadow:0 2px 20px rgba(0,0,0,0.25);">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6">
+            <div class="flex items-center justify-between h-14">
+                <!-- Logo -->
+                <a href="index.html" class="flex items-center gap-2.5 flex-shrink-0 group">
+                    <div class="w-7 h-7 rounded-lg bg-orange-500 flex items-center justify-center flex-shrink-0 group-hover:bg-orange-400 transition-colors">
+                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                        </svg>
+                    </div>
+                    <span class="text-sm font-bold tracking-widest group-hover:text-orange-300 transition-colors">數金情報站</span>
+                </a>
+
+                <!-- Desktop nav links -->
+                <div class="hidden md:flex items-center gap-6 text-sm font-medium">
+                    <a href="index.html" class="text-white/75 hover:text-orange-300 transition-colors flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                        </svg>
+                        AI 趨勢
+                    </a>
+                    <a href="watch.html" class="text-white/75 hover:text-orange-300 transition-colors flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        全球金融科技觀測
+                    </a>
+                    <a href="peer.html" class="text-white/75 hover:text-orange-300 transition-colors flex items-center gap-1.5"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/></svg>
+                        同業概觀</a>
+                    <a href="docs.html" class="text-orange-300 flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                        </svg>
+                        知識庫
+                    </a>
+                </div>
+
+                <!-- Mobile menu button -->
+                <button id="menuToggle" class="md:hidden p-2 rounded-lg hover:bg-white/10 transition-colors" aria-label="Menu">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile menu -->
+        <div id="mobileMenu" class="hidden md:hidden border-t border-white/10">
+            <div class="max-w-7xl mx-auto px-4 py-3 space-y-1 text-sm">
+                <a href="index.html" class="flex items-center gap-2.5 text-white/70 hover:text-white py-2.5 transition-colors">
+                    <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                    AI 趨勢
+                </a>
+                <a href="watch.html" class="flex items-center gap-2.5 text-white/70 hover:text-white py-2.5 transition-colors">
+                    <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    全球金融科技觀測
+                </a>
+                <a href="peer.html" class="flex items-center gap-2.5 text-white/70 hover:text-white py-2.5 transition-colors"><svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/></svg>
+                    同業概觀</a>
+                <a href="docs.html" class="flex items-center gap-2.5 text-orange-300 py-2.5 font-semibold">
+                    <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                    金融科技知識庫
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- tab -->
+    <header class="bg-gradient-to-r from-blue-900 to-blue-700 text-white py-8 sm:py-12 shadow-inner">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 text-center">
+            <h2 class="text-3xl sm:text-4xl font-extrabold mb-3">金融科技知識庫</h2>
+
+            <!-- search box -->
+            <div class="max-w-2xl mx-auto relative mb-6">
+                <input type="text" id="searchInput" placeholder="搜尋關鍵字..."
+                       class="w-full pl-10 sm:pl-12 pr-4 py-2.5 sm:py-3 rounded-full text-gray-800 focus:outline-none focus:ring-4 focus:ring-blue-300 shadow-lg text-sm sm:text-base">
+                <svg class="w-5 h-5 sm:w-6 sm:h-6 text-gray-400 absolute left-3 sm:left-4 top-3 sm:top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            </div>
+
+            <!-- Tab 切換列 -->
+            <div class="max-w-2xl mx-auto bg-white/20 rounded-xl p-1 flex">
+                <button class="tab-btn flex-1 py-2 px-2 rounded-lg text-sm sm:text-base font-semibold transition-all duration-200 bg-white text-blue-900 shadow" data-tab="models">
+                    <span class="hidden sm:inline">模型介紹</span>
+                    <span class="sm:hidden">介紹</span>
+                </button>
+                <button class="tab-btn flex-1 py-2 px-2 rounded-lg text-sm sm:text-base font-semibold transition-all duration-200 text-white hover:bg-white/20" data-tab="compare">
+                    <span class="hidden sm:inline">模型能力比較</span>
+                    <span class="sm:hidden">比較圖</span>
+                </button>
+                <button class="tab-btn flex-1 py-2 px-2 rounded-lg text-sm sm:text-base font-semibold transition-all duration-200 text-white hover:bg-white/20" data-tab="wiki">
+                    <span class="hidden sm:inline">知識百科</span>
+                    <span class="sm:hidden">百科</span>
+                </button>
+                <button class="tab-btn flex-1 py-2 px-2 rounded-lg text-sm sm:text-base font-semibold transition-all duration-200 text-white hover:bg-white/20" data-tab="comparisons">
+                    <span class="hidden sm:inline">相似名詞比較</span>
+                    <span class="sm:hidden">比較</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- main -->
+    <main class="max-w-7xl mx-auto p-4 sm:p-6 flex-grow w-full mt-2 sm:mt-4">
+
+        <!-- ===== Tab 1: AI model ===== -->
+        <div id="tab-models">
+            <!-- 分類篩選 -->
+            <div class="mb-6 sm:mb-8 space-y-3">
+                <!-- 類型 (單選) -->
+                <div class="overflow-x-auto pb-1">
+                    <div class="flex items-center gap-2 min-w-max px-1">
+                        <span class="text-xs font-bold text-gray-400 uppercase tracking-wider whitespace-nowrap w-10 shrink-0">類型</span>
+                        <button class="type-filter-btn active bg-orange-500 text-white px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold shadow-sm transition whitespace-nowrap" data-filter-type="ALL">全部</button>
+                        <button class="type-filter-btn bg-white text-gray-600 border border-gray-300 hover:bg-blue-50 px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition whitespace-nowrap" data-filter-type="commercial">商業模型</button>
+                        <button class="type-filter-btn bg-white text-gray-600 border border-gray-300 hover:bg-blue-50 px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition whitespace-nowrap" data-filter-type="open-source">開源模型</button>
+                    </div>
+                </div>
+                <!-- 分類 (單選) -->
+                <div class="overflow-x-auto pb-1">
+                    <div class="flex items-center gap-2 min-w-max px-1">
+                        <span class="text-xs font-bold text-gray-400 uppercase tracking-wider whitespace-nowrap w-10 shrink-0">分類</span>
+                        <button class="cat-filter-btn active bg-orange-500 text-white px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold shadow-sm transition whitespace-nowrap" data-filter-cat="ALL">全部</button>
+                        <button class="cat-filter-btn bg-white text-gray-600 border border-gray-300 hover:bg-blue-50 px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition whitespace-nowrap" data-filter-cat="chat">💬 Chat 對話</button>
+                        <button class="cat-filter-btn bg-white text-gray-600 border border-gray-300 hover:bg-blue-50 px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition whitespace-nowrap" data-filter-cat="image-gen">🖼 圖片生成</button>
+                        <button class="cat-filter-btn bg-white text-gray-600 border border-gray-300 hover:bg-blue-50 px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition whitespace-nowrap" data-filter-cat="video-gen">🎬 影片生成</button>
+                        <button class="cat-filter-btn bg-white text-gray-600 border border-gray-300 hover:bg-blue-50 px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition whitespace-nowrap" data-filter-cat="audio">🎵 音樂/語音</button>
+                        <button class="cat-filter-btn bg-white text-gray-600 border border-gray-300 hover:bg-blue-50 px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition whitespace-nowrap" data-filter-cat="agent">🤖 AI Agent</button>
+                        <button class="cat-filter-btn bg-white text-gray-600 border border-gray-300 hover:bg-blue-50 px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition whitespace-nowrap" data-filter-cat="search">🔍 搜尋</button>
+                    </div>
+                </div>
+                <!-- 公司 (單選) -->
+                <div class="overflow-x-auto pb-1" id="companyFilterRow">
+                    <div class="flex items-center gap-2 min-w-max px-1" id="companyFilterBtns">
+                        <span class="text-xs font-bold text-gray-400 uppercase tracking-wider whitespace-nowrap w-10 shrink-0">公司</span>
+                        <button class="company-filter-btn active bg-orange-500 text-white px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold shadow-sm transition whitespace-nowrap" data-filter-company="ALL">全部</button>
+                    </div>
+                </div>
+                <!-- 模態 (多選) -->
+                <div class="overflow-x-auto pb-1">
+                    <div class="flex items-center gap-2 min-w-max px-1">
+                        <span class="text-xs font-bold text-gray-400 uppercase tracking-wider whitespace-nowrap w-10 shrink-0">模態</span>
+                        <span class="text-xs text-gray-400 whitespace-nowrap">(可多選)</span>
+                        <button class="mod-filter-btn bg-white text-gray-600 border border-gray-300 hover:bg-blue-50 px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition whitespace-nowrap" data-filter-mod="text">📝 文字</button>
+                        <button class="mod-filter-btn bg-white text-gray-600 border border-gray-300 hover:bg-blue-50 px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition whitespace-nowrap" data-filter-mod="vision">👁 視覺</button>
+                        <button class="mod-filter-btn bg-white text-gray-600 border border-gray-300 hover:bg-blue-50 px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition whitespace-nowrap" data-filter-mod="audio">🔊 音訊</button>
+                        <button class="mod-filter-btn bg-white text-gray-600 border border-gray-300 hover:bg-blue-50 px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition whitespace-nowrap" data-filter-mod="video">🎞 影片</button>
+                    </div>
+                </div>
+                <!-- sort -->
+                <div class="overflow-x-auto pb-1">
+                    <div class="flex items-center gap-2 min-w-max px-1">
+                        <span class="text-xs font-bold text-gray-400 uppercase tracking-wider whitespace-nowrap w-10 shrink-0">排序</span>
+                        <button class="sort-btn active bg-orange-500 text-white px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold shadow-sm transition whitespace-nowrap" data-sort="date-desc">最新優先</button>
+                        <button class="sort-btn bg-white text-gray-600 border border-gray-300 hover:bg-blue-50 px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition whitespace-nowrap" data-sort="date-asc">最舊優先</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- modle cards -->
+            <div id="modelsContainer" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
+                <div class="col-span-full text-center text-gray-500 py-10" id="loadingText">
+                    <svg class="animate-spin h-8 w-8 text-blue-600 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    正在讀取 AI 模型資料...
+                </div>
+            </div>
+            <div id="modelsPagination" class="pb-10"></div>
+        </div>
+
+        <!-- ===== Tab 2: 知識百科 ===== -->
+        <div id="tab-wiki" class="hidden">
+            <!-- 分類篩選 -->
+            <div class="mb-6 overflow-x-auto pb-1">
+                <div class="flex items-center gap-2 min-w-max px-1">
+                    <span class="text-xs font-bold text-gray-400 uppercase tracking-wider whitespace-nowrap w-10 shrink-0">分類</span>
+                    <button class="wiki-cat-btn active bg-orange-500 text-white px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold shadow-sm transition whitespace-nowrap" data-wiki-cat="ALL">全部</button>
+                    <button class="wiki-cat-btn bg-white text-gray-600 border border-gray-300 hover:bg-blue-50 px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition whitespace-nowrap" data-wiki-cat="AI">🤖 AI</button>
+                    <button class="wiki-cat-btn bg-white text-gray-600 border border-gray-300 hover:bg-blue-50 px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition whitespace-nowrap" data-wiki-cat="資安相關">🛡 資安相關</button>
+                    <button class="wiki-cat-btn bg-white text-gray-600 border border-gray-300 hover:bg-blue-50 px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition whitespace-nowrap" data-wiki-cat="IT 基礎設施">🖥 IT 基礎設施</button>
+                    <button class="wiki-cat-btn bg-white text-gray-600 border border-gray-300 hover:bg-blue-50 px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition whitespace-nowrap" data-wiki-cat="區塊鏈">⛓ 區塊鏈</button>
+                    <button class="wiki-cat-btn bg-white text-gray-600 border border-gray-300 hover:bg-blue-50 px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition whitespace-nowrap" data-wiki-cat="自動化工具">⚙️ 自動化工具</button>
+                    <button class="wiki-cat-btn bg-white text-gray-600 border border-gray-300 hover:bg-blue-50 px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition whitespace-nowrap" data-wiki-cat="其他">📌 其他</button>
+                </div>
+            </div>
+            <div id="wikiContainer" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
+                <div class="col-span-full text-center text-gray-500 py-10" id="loadingWiki">
+                    <svg class="animate-spin h-8 w-8 text-blue-600 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    正在讀取知識百科資料...
+                </div>
+            </div>
+            <div id="wikiPagination" class="pb-10"></div>
+        </div>
+
+        <!-- ===== Tab 3: 相似名詞比較 ===== -->
+        <div id="tab-comparisons" class="hidden">
+            <div id="comparisonsContainer" class="flex flex-col">
+                <div class="col-span-full text-center text-gray-500 py-10" id="loadingComparisons">
+                    <svg class="animate-spin h-8 w-8 text-blue-600 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    正在讀取比較資料...
+                </div>
+            </div>
+            <div id="compsPagination" class="pb-10"></div>
+        </div>
+
+        <!-- ===== Tab 4: AI 模型比較（LLM 市場盤點熱力圖） ===== -->
+        <div id="tab-compare" class="hidden">
+            <div class="col-span-full text-center text-gray-500 py-10" id="loadingCompare">
+                <svg class="animate-spin h-8 w-8 text-blue-600 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                正在讀取市場盤點資料...
+            </div>
+        </div>
+
+
+    </main>
+
+    <footer class="bg-blue-900 text-blue-200 text-center py-6 text-xs mt-8">
+      <p class="mt-1 text-blue-400">元大金控 數位金融事業處 · 內部參考用途</p>
+    </footer>
+
+    <script>
+        const URL_MODELS      = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRR9-fSj7w0hofgshYNJ7t3O1uGrC4tG0i9bdhzxAAT2sa_-y74V6dEKrsrO7S2Uafwcxz4-GSxORve/pub?output=csv';
+        const URL_WIKI        = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ-8i3BkYL-uBDqICAYWNbEiRmxJRztXQmlcN2r4NSZFUb3kmQb6tcdcZRcDRHjUONvlcqNHz1cMFKI/pub?output=csv'; 
+        const URL_COMPARISONS = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ42IpI7XqI3KkLaprtqIaeK91mj7JvkXrXfyGmDStnNkrCvmDCFoYufGYbBoyoivklC0VhZRfMmU5O/pub?output=csv';
+
+        let allModelsData = [];
+        let allWikiData = [];
+        let allComparisonsData = [];
+        let currentWikiCatFilter = 'ALL';
+        let currentTab = 'models';
+        let currentTypeFilter = 'ALL';
+        let currentCategoryFilter = 'ALL';
+        let currentCompanyFilter = 'ALL';
+        let selectedModalities = new Set();
+        let currentSearchTerm = '';
+        let currentSort = 'date-desc';
+        const MODELS_PER_PAGE = 9;
+        const WIKI_PER_PAGE   = 12;
+        const COMPS_PER_PAGE  = 15;
+        let currentModelsPage = 1;
+        let currentWikiPage   = 1;
+        let currentCompsPage  = 1;
+
+        function fetchCSV(url) {
+            return new Promise((resolve, reject) => {
+                Papa.parse(url, {
+                    download: true, header: true, skipEmptyLines: true,
+                    complete: results => resolve(results.data),
+                    error: err => reject(err)
+                });
+            });
+        }
+
+        async function initData() {
+            try {
+                const [modelsResult, wikiResult, comparisonsResult] = await Promise.allSettled([
+                    fetchCSV(URL_MODELS),
+                    URL_WIKI ? fetchCSV(URL_WIKI) : Promise.resolve([]),
+                    fetchCSV(URL_COMPARISONS)
+                ]);
+
+                const rawModels   = modelsResult.status      === 'fulfilled' ? modelsResult.value      : [];
+                allWikiData       = wikiResult.status        === 'fulfilled' ? wikiResult.value        : [];
+                allComparisonsData = comparisonsResult.status === 'fulfilled' ? comparisonsResult.value : [];
+
+                allModelsData = rawModels.filter(r => r['record_type'] === 'model' || !r['record_type']);
+
+                ['loadingText', 'loadingWiki', 'loadingComparisons'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.remove();
+                });
+
+                // 抓出所有不重複的公司名稱，生成篩選鈕
+                const companies = [...new Set(allModelsData.map(m => m['company']).filter(Boolean))].sort();
+                const companyBtnsContainer = document.getElementById('companyFilterBtns');
+                companies.forEach(company => {
+                    const btn = document.createElement('button');
+                    btn.className = 'company-filter-btn bg-white text-gray-600 border border-gray-300 hover:bg-blue-50 px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition whitespace-nowrap';
+                    btn.dataset.filterCompany = company;
+                    btn.textContent = company;
+                    companyBtnsContainer.appendChild(btn);
+                });
+
+                // 公司篩選鈕 (單選，重複點選則取消篩選)
+                document.querySelectorAll('.company-filter-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const isActive = e.target.classList.contains('bg-orange-500');
+                        const isAll = e.target.dataset.filterCompany === 'ALL';
+                        const target = (isActive && !isAll)
+                            ? document.querySelector('.company-filter-btn[data-filter-company="ALL"]')
+                            : e.target;
+                        document.querySelectorAll('.company-filter-btn').forEach(b => {
+                            b.classList.remove('bg-orange-500', 'text-white', 'shadow-sm');
+                            b.classList.add('bg-white', 'text-gray-600');
+                        });
+                        target.classList.remove('bg-white', 'text-gray-600');
+                        target.classList.add('bg-orange-500', 'text-white', 'shadow-sm');
+                        currentCompanyFilter = target.dataset.filterCompany;
+                        renderModels();
+                    });
+                });
+
+                // 類型篩選按鈕 (單選，重複點選則取消篩選選)
+                document.querySelectorAll('.type-filter-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const isActive = e.target.classList.contains('bg-orange-500');
+                        const isAll = e.target.dataset.filterType === 'ALL';
+                        const target = (isActive && !isAll)
+                            ? document.querySelector('.type-filter-btn[data-filter-type="ALL"]')
+                            : e.target;
+                        document.querySelectorAll('.type-filter-btn').forEach(b => {
+                            b.classList.remove('bg-orange-500', 'text-white');
+                            b.classList.add('bg-white', 'text-gray-600');
+                        });
+                        target.classList.remove('bg-white', 'text-gray-600');
+                        target.classList.add('bg-orange-500', 'text-white');
+                        currentTypeFilter = target.dataset.filterType;
+                        renderModels();
+                    });
+                });
+
+                // 分類篩選按鈕 (單選，重複點選則取消篩選)
+                document.querySelectorAll('.cat-filter-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const isActive = e.target.classList.contains('bg-orange-500');
+                        const isAll = e.target.dataset.filterCat === 'ALL';
+                        const target = (isActive && !isAll)
+                            ? document.querySelector('.cat-filter-btn[data-filter-cat="ALL"]')
+                            : e.target;
+                        document.querySelectorAll('.cat-filter-btn').forEach(b => {
+                            b.classList.remove('bg-orange-500', 'text-white');
+                            b.classList.add('bg-white', 'text-gray-600');
+                        });
+                        target.classList.remove('bg-white', 'text-gray-600');
+                        target.classList.add('bg-orange-500', 'text-white');
+                        currentCategoryFilter = target.dataset.filterCat;
+                        renderModels();
+                    });
+                });
+
+                // 模態篩選按鈕 (多選 toggle)
+                document.querySelectorAll('.mod-filter-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const mod = e.target.dataset.filterMod;
+                        if (selectedModalities.has(mod)) {
+                            selectedModalities.delete(mod);
+                            e.target.classList.remove('bg-orange-500', 'text-white');
+                            e.target.classList.add('bg-white', 'text-gray-600');
+                        } else {
+                            selectedModalities.add(mod);
+                            e.target.classList.remove('bg-white', 'text-gray-600');
+                            e.target.classList.add('bg-orange-500', 'text-white');
+                        }
+                        renderModels();
+                    });
+                });
+
+                // 排序鈕
+                document.querySelectorAll('.sort-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        currentSort = e.target.dataset.sort;
+                        document.querySelectorAll('.sort-btn').forEach(b => {
+                            b.classList.remove('bg-orange-500', 'text-white', 'shadow-sm');
+                            b.classList.add('bg-white', 'text-gray-600');
+                        });
+                        e.target.classList.remove('bg-white', 'text-gray-600');
+                        e.target.classList.add('bg-orange-500', 'text-white', 'shadow-sm');
+                        renderModels();
+                    });
+                });
+
+                // 搜尋
+                document.getElementById('searchInput').addEventListener('input', (e) => {
+                    currentSearchTerm = e.target.value.toLowerCase();
+                    renderCurrent();
+                });
+
+                renderModels();
+
+                // 知識百科分類篩選
+                document.querySelectorAll('.wiki-cat-btn').forEach(btn => {
+                    btn.addEventListener('click', e => {
+                        document.querySelectorAll('.wiki-cat-btn').forEach(b => {
+                            b.classList.remove('bg-orange-500', 'text-white', 'shadow-sm');
+                            b.classList.add('bg-white', 'text-gray-600');
+                        });
+                        e.target.classList.remove('bg-white', 'text-gray-600');
+                        e.target.classList.add('bg-orange-500', 'text-white', 'shadow-sm');
+                        currentWikiCatFilter = e.target.dataset.wikiCat;
+                        renderWiki();
+                    });
+                });
+
+            } catch (error) {
+                console.error(error);
+                ['loadingText', 'loadingWiki', 'loadingComparisons'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.innerHTML = '讀取資料失敗，請檢查網址與網路連線。';
+                });
+            }
+        }
+
+        // Tab 切換
+        function switchTab(tab) {
+            currentTab = tab;
+            currentSearchTerm = '';
+            document.getElementById('searchInput').value = '';
+
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                if (btn.dataset.tab === tab) {
+                    btn.classList.add('bg-white', 'text-blue-900', 'shadow');
+                    btn.classList.remove('text-white', 'hover:bg-white/20');
+                } else {
+                    btn.classList.remove('bg-white', 'text-blue-900', 'shadow');
+                    btn.classList.add('text-white', 'hover:bg-white/20');
+                }
+            });
+
+            document.getElementById('tab-models').classList.toggle('hidden', tab !== 'models');
+            document.getElementById('tab-wiki').classList.toggle('hidden', tab !== 'wiki');
+            document.getElementById('tab-comparisons').classList.toggle('hidden', tab !== 'comparisons');
+            document.getElementById('tab-compare').classList.toggle('hidden', tab !== 'compare');
+
+            if (tab === 'compare') loadCompare();
+            renderCurrent();
+        }
+
+        // AI 模型比較：載入 build_llm_scan.py 產出的片段並注入（非 iframe，看起來像原生內容）
+        let compareLoaded = false;
+        async function loadCompare() {
+            if (compareLoaded) return;
+            compareLoaded = true;
+            const el = document.getElementById('tab-compare');
+            try {
+                const res = await fetch('llm_market_scan.html');
+                if (!res.ok) throw new Error(res.status);
+                el.innerHTML = await res.text();
+                // 片段自帶 <script>（IIFE，會自行渲染表格／圖表並綁 tooltip）；
+                // innerHTML 注入的 script 不會執行，逐一重建節點讓它跑起來。
+                el.querySelectorAll('script').forEach(old => {
+                    const s = document.createElement('script');
+                    if (old.src) s.src = old.src; else s.textContent = old.textContent;
+                    old.replaceWith(s);
+                });
+            } catch (e) {
+                compareLoaded = false;
+                el.innerHTML = '<div class="text-center text-gray-500 py-10">讀取市場盤點失敗，請以本機伺服器開啟頁面（file:// 無法載入片段）。</div>';
+            }
+        }
+
+        // 熱力圖浮動 tooltip：掛在 body（position:fixed），不會被熱力圖橫向捲軸容器裁切
+        function setupHeatmapTooltips(root) {
+            let tip = document.getElementById('llmHeatTip');
+            if (!tip) {
+                tip = document.createElement('div');
+                tip.id = 'llmHeatTip';
+                tip.className = 'llm-tip';
+                document.body.appendChild(tip);
+            }
+            const place = (cell) => {
+                const r = cell.getBoundingClientRect();
+                const tw = tip.offsetWidth, th = tip.offsetHeight;
+                let top = r.top - th - 8;
+                if (top < 8) top = r.bottom + 8;
+                let left = r.left + r.width / 2 - tw / 2;
+                left = Math.max(8, Math.min(left, window.innerWidth - tw - 8));
+                tip.style.top = top + 'px';
+                tip.style.left = left + 'px';
+            };
+            root.querySelectorAll('#llm-scan td.cell[data-tip]').forEach(cell => {
+                cell.addEventListener('mouseenter', () => {
+                    tip.textContent = cell.dataset.tip;
+                    tip.style.display = 'block';
+                    place(cell);
+                });
+                cell.addEventListener('mouseleave', () => { tip.style.display = 'none'; });
+            });
+        }
+
+        function renderCurrent() {
+            if (currentTab === 'models') renderModels();
+            else if (currentTab === 'wiki') renderWiki();
+            else if (currentTab === 'comparisons') renderComparisons();
+        }
+
+        function formatList(text, iconSVG) {
+            if (!text) return '';
+            const items = text.split('\n').filter(i => i.trim() !== '');
+            return items.map(item => `
+                <li class="flex items-start text-sm text-gray-600 mb-1">
+                    <span class="mr-1.5 flex-shrink-0 mt-0.5">${iconSVG}</span>
+                    <span>${item}</span>
+                </li>
+            `).join('');
+        }
+
+        // ===== Tab 1: AI model =====
+        function renderModels(resetPage = true) {
+            if (resetPage) currentModelsPage = 1;
+            const container = document.getElementById('modelsContainer');
+            container.innerHTML = '';
+
+            let filtered = allModelsData.filter(model => {
+                const searchStr = `${model['model_name']} ${model['company']} ${model['description']} ${model['key_features']}`.toLowerCase();
+                const matchSearch = searchStr.includes(currentSearchTerm);
+                const matchType = currentTypeFilter === 'ALL' || model['type'] === currentTypeFilter;
+                const matchCategory = currentCategoryFilter === 'ALL' || model['category'] === currentCategoryFilter;
+                const matchCompany = currentCompanyFilter === 'ALL' || model['company'] === currentCompanyFilter;
+                const modelModalities = (model['supported_modalities'] || '').split('\n').filter(Boolean);
+                const matchModality = selectedModalities.size === 0 ||
+                    [...selectedModalities].some(m => modelModalities.includes(m));
+                return matchSearch && matchType && matchCategory && matchCompany && matchModality;
+            });
+
+            // 排序
+            filtered.sort((a, b) => {
+                const da = a['release_date'] || '';
+                const db = b['release_date'] || '';
+                return currentSort === 'date-asc' ? da.localeCompare(db) : db.localeCompare(da);
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="col-span-full text-center text-gray-500 py-10 text-lg">找不到符合條件的模型</div>`;
+                renderDocsPagination('modelsPagination', 0, 0, 0, MODELS_PER_PAGE, 'goToModelsPage');
+                return;
+            }
+
+            const totalModelsItems = filtered.length;
+            const totalModelsPages = Math.ceil(totalModelsItems / MODELS_PER_PAGE);
+            if (currentModelsPage > totalModelsPages) currentModelsPage = Math.max(1, totalModelsPages);
+            const pageFiltered = filtered.slice((currentModelsPage - 1) * MODELS_PER_PAGE, currentModelsPage * MODELS_PER_PAGE);
+
+            const prosIcon = `<svg class="w-4 h-4 text-green-500 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`;
+            const consIcon = `<svg class="w-4 h-4 text-red-400 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>`;
+
+            const CATEGORY_MAP = {
+                'chat':      { label: '💬 Chat 對話',  cls: 'bg-indigo-100 text-indigo-800' },
+                'image-gen': { label: '🖼 圖片生成',   cls: 'bg-violet-100 text-violet-800' },
+                'video-gen': { label: '🎬 影片生成',   cls: 'bg-pink-100 text-pink-800' },
+                'audio':     { label: '🎵 音樂/語音',  cls: 'bg-amber-100 text-amber-800' },
+                'agent':     { label: '🤖 AI Agent',   cls: 'bg-slate-100 text-slate-700' },
+                'search':    { label: '🔍 搜尋',       cls: 'bg-yellow-100 text-yellow-800' },
+            };
+            const MODALITY_MAP = {
+                'text':   '📝 文字',
+                'vision': '👁 視覺',
+                'audio':  '🔊 音訊',
+                'video':  '🎞 影片',
+            };
+
+            pageFiltered.forEach(model => {
+                const isCommercial = model['type'] === 'commercial';
+                const typeBadge = isCommercial
+                    ? `<span class="bg-indigo-100 text-indigo-800 text-xs font-bold px-2.5 py-1 rounded">Commercial</span>`
+                    : `<span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-1 rounded">Open Source</span>`;
+
+                const catInfo = CATEGORY_MAP[model['category']] || { label: model['category'], cls: 'bg-gray-100 text-gray-700' };
+                const categoryBadge = `<span class="${catInfo.cls} text-xs font-bold px-2.5 py-1 rounded">${catInfo.label}</span>`;
+
+                let modalitiesHtml = '';
+                if (model['supported_modalities']) {
+                    const mods = model['supported_modalities'].split('\n').filter(Boolean);
+                    modalitiesHtml = mods.map(m => {
+                        const label = MODALITY_MAP[m] || m;
+                        return `<span class="inline-block bg-slate-100 text-slate-600 text-xs px-2 py-0.5 rounded-full mr-1 mb-1">${label}</span>`;
+                    }).join('');
+                }
+
+                let featuresHtml = '';
+                if (model['key_features']) {
+                    const features = model['key_features'].split('\n').filter(f => f.trim() !== '');
+                    featuresHtml = features.map(f => `<span class="inline-block bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-sm mr-1.5 mb-1.5">${f}</span>`).join('');
+                }
+
+                const prosHtml = formatList(model['pros'], prosIcon);
+                const consHtml = formatList(model['cons'], consIcon);
+
+                container.innerHTML += `
+                    <div class="bg-white rounded-2xl shadow border border-gray-200 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col h-full">
+                        <div class="p-5 sm:p-6 border-b border-gray-100">
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">${model['company']}</p>
+                                    <h3 class="text-lg sm:text-xl font-bold text-gray-900 mt-1">${model['model_name']}</h3>
+                                </div>
+                                <div class="flex flex-col items-end gap-1 shrink-0 ml-2">
+                                    ${typeBadge}
+                                    ${categoryBadge}
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-400 mb-4">發布日期: ${model['release_date']}</p>
+                            <p class="text-gray-700 text-sm leading-relaxed">${model['description']}</p>
+                        </div>
+
+                        <div class="p-4 sm:p-5 flex-grow bg-gray-50/50">
+                            ${modalitiesHtml ? `<div class="mb-3">
+                                <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">輸入模態</h4>
+                                <div>${modalitiesHtml}</div>
+                            </div>` : ''}
+                            <div class="mb-4">
+                                <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Key Features</h4>
+                                <div>${featuresHtml}</div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3 sm:gap-4">
+                                <div>
+                                    <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Pros 優點</h4>
+                                    <ul>${prosHtml}</ul>
+                                </div>
+                                <div>
+                                    <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Cons 限制</h4>
+                                    <ul>${consHtml}</ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-4 sm:p-5 bg-blue-50/30 border-t border-gray-100 mt-auto">
+                            <div class="mb-3">
+                                <span class="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">🎯 Best For (最適合)</span>
+                                <p class="text-sm text-gray-800 font-medium">${model['best_for']}</p>
+                            </div>
+                            <div>
+                                <span class="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">💰 Pricing (計費方式)</span>
+                                <p class="text-sm text-orange-800 bg-orange-100 inline-block px-2 py-0.5 rounded">${model['pricing']}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            renderDocsPagination('modelsPagination', currentModelsPage, totalModelsPages, totalModelsItems, MODELS_PER_PAGE, 'goToModelsPage');
+        }
+
+        // ===== Tab 2: 知識百科 =====
+        const WIKI_CAT_MAP = {
+            'AI':         { cls: 'bg-indigo-100 text-indigo-800',  icon: '🤖' },
+            '資安相關':   { cls: 'bg-red-100 text-red-800',        icon: '🛡' },
+            'IT 基礎設施':{ cls: 'bg-sky-100 text-sky-800',        icon: '🖥' },
+            '區塊鏈':     { cls: 'bg-teal-100 text-teal-800',      icon: '⛓' },
+            '自動化工具': { cls: 'bg-amber-100 text-amber-800',    icon: '⚙️' },
+            '其他':       { cls: 'bg-gray-100 text-gray-700',      icon: '📌' },
+        };
+
+        function renderWiki(resetPage = true) {
+            if (resetPage) currentWikiPage = 1;
+            const container = document.getElementById('wikiContainer');
+            container.innerHTML = '';
+
+            if (!URL_WIKI) {
+                container.innerHTML = `<div class="col-span-full text-center text-gray-400 py-16">
+                    <p class="text-4xl mb-4">📚</p>
+                    <p class="text-lg font-semibold mb-2">知識百科資料尚未設定</p>
+                    <p class="text-sm">請建立 Google Sheet 並將 URL 填入 <code class="bg-gray-100 px-1 rounded">URL_WIKI</code> 常數</p>
+                </div>`;
+                return;
+            }
+
+            let filtered = allWikiData.filter(t => {
+                const searchStr = `${t['term'] || ''} ${t['aliases'] || ''} ${t['description'] || ''} ${t['finance_relevance'] || t['financial_use_case'] || ''}`.toLowerCase();
+                const matchSearch = searchStr.includes(currentSearchTerm);
+                const matchCat = currentWikiCatFilter === 'ALL' || t['category'] === currentWikiCatFilter;
+                return matchSearch && matchCat;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="col-span-full text-center text-gray-500 py-10 text-lg">找不到符合條件的相關名詞</div>`;
+                renderDocsPagination('wikiPagination', 0, 0, 0, WIKI_PER_PAGE, 'goToWikiPage');
+                return;
+            }
+
+            const totalWikiItems = filtered.length;
+            const totalWikiPages = Math.ceil(totalWikiItems / WIKI_PER_PAGE);
+            if (currentWikiPage > totalWikiPages) currentWikiPage = Math.max(1, totalWikiPages);
+            const pageWiki = filtered.slice((currentWikiPage - 1) * WIKI_PER_PAGE, currentWikiPage * WIKI_PER_PAGE);
+
+            pageWiki.forEach(term => {
+                const catInfo = WIKI_CAT_MAP[term['category']] || { cls: 'bg-gray-100 text-gray-700', icon: '📌' };
+                const categoryBadge = `<span class="${catInfo.cls} text-xs font-bold px-2.5 py-1 rounded">${catInfo.icon} ${term['category'] || '其他'}</span>`;
+
+                const relatedTagsHtml = (term['related_terms'] || '').split(/[\n,]/).map(t => t.trim()).filter(Boolean)
+                    .map(t => `<span class="inline-block bg-slate-100 text-slate-600 text-xs px-2 py-0.5 rounded-full mr-1 mb-1">${t}</span>`).join('');
+
+                const financeVal = term['finance_relevance'] || term['financial_use_case'] || '';
+                const financeHtml = financeVal
+                    ? `<div class="mt-3 px-3 py-2.5 bg-blue-50 rounded-lg border border-blue-100">
+                           <p class="text-xs font-bold text-blue-700 mb-1">🏦 金融業應用情境</p>
+                           <p class="text-sm text-blue-900 leading-relaxed">${financeVal}</p>
+                       </div>` : '';
+
+                const aliasVal = term['aliases'] || '';
+
+                container.innerHTML += `
+                    <div class="bg-white rounded-2xl shadow border border-gray-200 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col h-full">
+                        <div class="p-5 sm:p-6 border-b border-gray-100">
+                            <div class="flex items-start justify-between gap-2 mb-1">
+                                <h3 class="text-base sm:text-lg font-bold text-gray-900 leading-snug">${term['term'] || ''}</h3>
+                                ${categoryBadge}
+                            </div>
+                            <p class="text-sm text-blue-700 font-medium">${aliasVal}</p>
+                        </div>
+                        <div class="p-4 sm:p-5 flex-grow">
+                            <p class="text-gray-700 text-sm leading-relaxed">${term['description'] || ''}</p>
+                            ${financeHtml}
+                            ${relatedTagsHtml ? `<div class="mt-3"><p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">相關術語</p>${relatedTagsHtml}</div>` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+
+            renderDocsPagination('wikiPagination', currentWikiPage, totalWikiPages, totalWikiItems, WIKI_PER_PAGE, 'goToWikiPage');
+        }
+
+        // ===== Tab 3: 相似名詞比較 =====
+
+        function parseItemsDetails(text) {
+            const lines = text.split('\n').filter(l => l.trim() !== '');
+            const sections = [];
+            const keys = [];
+            let current = null;
+
+            lines.forEach(line => {
+                if (line.startsWith('【')) {
+                    current = { name: line.trim(), items: {} };
+                    sections.push(current);
+                } else {
+                    const idx = line.indexOf('：');
+                    if (idx > -1 && current) {
+                        const k = line.slice(0, idx).trim();
+                        const v = line.slice(idx + 1).trim();
+                        current.items[k] = v;
+                        if (!keys.includes(k)) keys.push(k);
+                    }
+                }
+            });
+            return { sections, keys };
+        }
+
+        const KEY_ICONS = {
+            '是什麼': `<svg class="w-3.5 h-3.5 text-gray-500 inline mr-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 16v-4m0-4h.01"/></svg>`,
+            '優勢':   `<svg class="w-3.5 h-3.5 text-green-500 inline mr-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>`,
+            '劣勢':   `<svg class="w-3.5 h-3.5 text-red-400 inline mr-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>`,
+            '適合':   `<svg class="w-3.5 h-3.5 text-red-600 inline mr-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>`,
+        };
+
+        function buildVSColumns(sections, keys) {
+            if (!sections.length || !keys.length) return '';
+
+            const palette = [
+                { header: 'bg-blue-700',  label: 'text-blue-700',  border: 'border-blue-200',  bg: 'bg-white' },
+                { header: 'bg-slate-700', label: 'text-slate-700', border: 'border-slate-200', bg: 'bg-white' },
+                { header: 'bg-orange-500',  label: 'text-blue-700',  border: 'border-blue-200',  bg: 'bg-white' },
+                { header: 'bg-slate-600', label: 'text-slate-600', border: 'border-slate-200', bg: 'bg-white' },
+            ];
+
+            const cols = sections.map((s, i) => {
+                const c = palette[i % palette.length];
+                const rows = keys.map(key => {
+                    const icon = KEY_ICONS[key] || '';
+                    return `
+                    <div>
+                        <p class="text-xs font-bold ${c.label} mb-1 flex items-center">${icon}${key}</p>
+                        <p class="text-sm text-gray-700 leading-relaxed">${s.items[key] || '—'}</p>
+                    </div>`;
+                }).join('');
+                return `
+                    <div class="rounded-xl border-2 ${c.border} ${c.bg} overflow-hidden shadow-sm">
+                        <div class="${c.header} text-white px-4 py-2.5 text-sm font-bold">${s.name}</div>
+                        <div class="p-4 space-y-4">${rows}</div>
+                    </div>`;
+            }).join('');
+
+            const gridCols = sections.length >= 3 ? 'grid-cols-1 sm:grid-cols-3'
+                           : sections.length === 2 ? 'grid-cols-1 sm:grid-cols-2'
+                           : 'grid-cols-1';
+            return `<div class="grid ${gridCols} gap-4 mt-4">${cols}</div>`;
+        }
+
+        function formatCompTitle(title) {
+            // Split on " vs " (case-insensitive), highlight each noun term
+            const parts = title.split(/(\s+vs\s+)/i);
+            return parts.map(part => {
+                if (/^\s+vs\s+$/i.test(part)) {
+                    return `<span class="text-gray-400 font-normal text-sm">${part.trim()}</span>`;
+                }
+                return `<span class="bg-slate-100 text-slate-800 px-1.5 py-0.5 rounded font-extrabold">${part}</span>`;
+            }).join(' ');
+        }
+
+        function renderComparisons(resetPage = true) {
+            if (resetPage) currentCompsPage = 1;
+            const container = document.getElementById('comparisonsContainer');
+            container.innerHTML = '';
+
+            let filtered = allComparisonsData.filter(c => {
+                const searchStr = `${c['title']} ${c['summary']} ${c['key_difference']}`.toLowerCase();
+                return searchStr.includes(currentSearchTerm);
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="text-center text-gray-500 py-10 text-lg">找不到符合條件的比較</div>`;
+                renderDocsPagination('compsPagination', 0, 0, 0, COMPS_PER_PAGE, 'goToCompsPage');
+                return;
+            }
+
+            const totalCompsItems = filtered.length;
+            const totalCompsPages = Math.ceil(totalCompsItems / COMPS_PER_PAGE);
+            if (currentCompsPage > totalCompsPages) currentCompsPage = Math.max(1, totalCompsPages);
+            const pageComps = filtered.slice((currentCompsPage - 1) * COMPS_PER_PAGE, currentCompsPage * COMPS_PER_PAGE);
+
+            pageComps.forEach(comp => {
+                let tableHtml = '';
+                if (comp['items_details']) {
+                    const { sections, keys } = parseItemsDetails(comp['items_details']);
+                    tableHtml = buildVSColumns(sections, keys);
+                }
+
+                const keyDiffHtml = comp['key_difference'] ? `
+                    <div class="mt-4 px-4 py-3 bg-amber-50 rounded-lg border border-amber-200">
+                        <p class="text-xs font-bold text-amber-700 mb-1">🔑 核心差異</p>
+                        <p class="text-sm text-amber-900 leading-relaxed">${comp['key_difference']}</p>
+                    </div>` : '';
+
+                const financeHtml = comp['financial_use_case'] ? `
+                    <div class="mt-3 px-4 py-3 bg-blue-50 rounded-lg border border-blue-100">
+                        <p class="text-xs font-bold text-blue-700 mb-1">🏦 金融業應用情境</p>
+                        <p class="text-sm text-blue-900 leading-relaxed">${comp['financial_use_case']}</p>
+                    </div>` : '';
+
+                const uid = Math.random().toString(36).slice(2);
+                container.innerHTML += `
+                    <article class="border-b border-gray-200 last:border-b-0">
+                        <button onclick="toggleComp('${uid}')"
+                            class="w-full text-left py-5 flex items-start justify-between gap-3 group">
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <h3 class="text-base sm:text-lg font-bold text-gray-900 leading-snug flex items-center gap-1.5 flex-wrap">${formatCompTitle(comp['title'])}</h3>
+                                    <span class="bg-orange-100 text-orange-800 text-xs font-bold px-2 py-0.5 rounded flex-shrink-0">比較</span>
+                                </div>
+                                <p class="text-sm text-gray-500 mt-1 leading-relaxed">${comp['summary'] || ''}</p>
+                            </div>
+                            <svg id="chevron-${uid}" class="flex-shrink-0 w-5 h-5 text-gray-400 transition-transform duration-200 mt-0.5"
+                                fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </button>
+                        <div id="body-${uid}" class="hidden pb-5">
+                            ${tableHtml}
+                            ${keyDiffHtml}
+                            ${financeHtml}
+                        </div>
+                    </article>
+                `;
+            });
+
+            renderDocsPagination('compsPagination', currentCompsPage, totalCompsPages, totalCompsItems, COMPS_PER_PAGE, 'goToCompsPage');
+        }
+
+
+        function renderDocsPagination(containerId, page, totalPages, totalItems, perPage, goFnName) {
+            const el = document.getElementById(containerId);
+            if (!el) return;
+            if (totalPages <= 1) { el.innerHTML = ''; return; }
+            const startItem = (page - 1) * perPage + 1;
+            const endItem = Math.min(page * perPage, totalItems);
+            let pages = '';
+            let s = Math.max(1, page - 2), e = Math.min(totalPages, s + 4);
+            if (e - s < 4) s = Math.max(1, e - 4);
+            for (let i = s; i <= e; i++) {
+                const a = i === page;
+                pages += `<button onclick="${goFnName}(${i})" class="w-8 h-8 rounded-lg text-sm font-semibold transition ${a ? 'bg-blue-600 text-white shadow-sm' : 'bg-white text-gray-600 border border-gray-300 hover:bg-blue-50'}">${i}</button>`;
+            }
+            el.innerHTML = `<div class="flex items-center justify-center gap-2 py-6">
+                <button onclick="${goFnName}(${page - 1})" ${page === 1 ? 'disabled' : ''} class="px-3 py-1.5 rounded-lg text-sm font-semibold border border-gray-300 bg-white hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition">← 上一頁</button>
+                <div class="flex gap-1">${pages}</div>
+                <button onclick="${goFnName}(${page + 1})" ${page === totalPages ? 'disabled' : ''} class="px-3 py-1.5 rounded-lg text-sm font-semibold border border-gray-300 bg-white hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition">下一頁 →</button>
+                <span class="text-xs text-gray-400 ml-2">${startItem}–${endItem} / ${totalItems} 筆</span>
+            </div>`;
+        }
+
+        function goToModelsPage(page) { currentModelsPage = page; renderModels(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+        function goToWikiPage(page)   { currentWikiPage   = page; renderWiki(false);   window.scrollTo({ top: 0, behavior: 'smooth' }); }
+        function goToCompsPage(page)  { currentCompsPage  = page; renderComparisons(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+
+        function toggleComp(uid) {
+            const body = document.getElementById('body-' + uid);
+            const chevron = document.getElementById('chevron-' + uid);
+            const isHidden = body.classList.toggle('hidden');
+            chevron.style.transform = isHidden ? '' : 'rotate(180deg)';
+        }
+
+        // Tab 按鈕
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+        });
+
+        // 手機版選單開關
+        document.getElementById('menuToggle').addEventListener('click', () => {
+            document.getElementById('mobileMenu').classList.toggle('hidden');
+        });
+
+        window.addEventListener('DOMContentLoaded', initData);
+    </script>
+</body>
+</html>

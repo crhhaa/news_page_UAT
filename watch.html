@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>數金情報站 - 全球金融科技觀測</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <style>
+        html { scroll-behavior: smooth; }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans">
+
+    <!-- NAVBAR -->
+    <nav class="text-white sticky top-0 z-50" style="background:linear-gradient(135deg,#0f2460 0%,#1e3a8a 50%,#1e40af 100%);box-shadow:0 2px 20px rgba(0,0,0,0.25);">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6">
+            <div class="flex items-center justify-between h-14">
+                <!-- Logo -->
+                <a href="index.html" class="flex items-center gap-2.5 flex-shrink-0 group">
+                    <div class="w-7 h-7 rounded-lg bg-orange-500 flex items-center justify-center flex-shrink-0 group-hover:bg-orange-400 transition-colors">
+                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                        </svg>
+                    </div>
+                    <span class="text-sm font-bold tracking-widest group-hover:text-orange-300 transition-colors">數金情報站</span>
+                </a>
+
+                <!-- Desktop nav links -->
+                <div class="hidden md:flex items-center gap-6 text-sm font-medium">
+                    <a href="index.html" class="text-white/75 hover:text-orange-300 transition-colors flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                        </svg>
+                        AI 趨勢
+                    </a>
+                    <a href="watch.html" class="text-orange-300 flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        全球金融科技觀測
+                    </a>
+                    <a href="peer.html" class="text-white/75 hover:text-orange-300 transition-colors flex items-center gap-1.5"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/></svg>
+                        同業概觀</a>
+                    <a href="docs.html" class="text-white/75 hover:text-orange-300 transition-colors flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                        </svg>
+                        知識庫
+                    </a>
+                </div>
+
+                <!-- Mobile menu button -->
+                <button id="menuToggle" class="md:hidden p-2 rounded-lg hover:bg-white/10 transition-colors" aria-label="Menu">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile menu -->
+        <div id="mobileMenu" class="hidden md:hidden border-t border-white/10">
+            <div class="max-w-7xl mx-auto px-4 py-3 space-y-1 text-sm">
+                <a href="index.html" class="flex items-center gap-2.5 text-white/70 hover:text-white py-2.5 transition-colors">
+                    <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                    AI 趨勢
+                </a>
+                <a href="watch.html" class="flex items-center gap-2.5 text-orange-300 py-2.5 font-semibold">
+                    <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    全球金融科技觀測
+                </a>
+                <a href="peer.html" class="flex items-center gap-2.5 text-white/70 hover:text-white py-2.5 transition-colors"><svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/></svg>
+                    同業概觀</a>
+                <a href="docs.html" class="flex items-center gap-2.5 text-white/70 hover:text-white py-2.5 transition-colors">
+                    <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                    金融科技知識庫
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- main -->
+    <main class="max-w-7xl mx-auto px-4 py-6">
+
+        <!-- 篩選1：國內/國外 -->
+        <div class="mb-8 bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+            <div class="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between mb-5">
+                <h2 class="text-xl font-semibold text-gray-700">全球金融科技觀測</h2>
+                <div class="flex items-center gap-1 bg-gray-100 rounded-xl p-1 flex-shrink-0">
+                    <button class="market-tab px-4 py-1.5 rounded-lg text-sm font-semibold transition-all" data-market="DOMESTIC">🇹🇼 台灣市場</button>
+                    <button class="market-tab px-4 py-1.5 rounded-lg text-sm font-semibold transition-all" data-market="GLOBAL">🌐 國際市場</button>
+                </div>
+            </div>
+            <!-- 篩選2：領域篩選 -->
+            <div class="flex flex-wrap items-center gap-2 mb-3">
+                <span class="text-sm font-medium text-gray-600 whitespace-nowrap">🏷️ 篩選領域：</span>
+                <button class="domain-filter-btn bg-orange-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-sm transition whitespace-nowrap" data-domain="ALL">全部</button>
+                <button class="domain-filter-btn bg-white text-gray-600 border border-gray-300 hover:bg-blue-50 px-3 py-1 rounded-full text-xs font-semibold transition whitespace-nowrap" data-domain="AI">🤖 AI</button>
+                <button class="domain-filter-btn bg-white text-gray-600 border border-gray-300 hover:bg-blue-50 px-3 py-1 rounded-full text-xs font-semibold transition whitespace-nowrap" data-domain="行動App">📲 行動App</button>
+                <button class="domain-filter-btn bg-white text-gray-600 border border-gray-300 hover:bg-blue-50 px-3 py-1 rounded-full text-xs font-semibold transition whitespace-nowrap" data-domain="支付工具">💳 支付工具</button>
+                <button class="domain-filter-btn bg-white text-gray-600 border border-gray-300 hover:bg-blue-50 px-3 py-1 rounded-full text-xs font-semibold transition whitespace-nowrap" data-domain="信用貸款">🏦 信用貸款</button>
+                <button class="domain-filter-btn bg-white text-gray-600 border border-gray-300 hover:bg-blue-50 px-3 py-1 rounded-full text-xs font-semibold transition whitespace-nowrap" data-domain="數位帳戶">🏧 數位帳戶</button>
+                <button class="domain-filter-btn bg-white text-gray-600 border border-gray-300 hover:bg-blue-50 px-3 py-1 rounded-full text-xs font-semibold transition whitespace-nowrap" data-domain="智能客服">🤝 智能客服</button>
+                <button class="domain-filter-btn bg-white text-gray-600 border border-gray-300 hover:bg-blue-50 px-3 py-1 rounded-full text-xs font-semibold transition whitespace-nowrap" data-domain="智能理財">📈 智能理財</button>
+                <button class="domain-filter-btn bg-white text-gray-600 border border-gray-300 hover:bg-blue-50 px-3 py-1 rounded-full text-xs font-semibold transition whitespace-nowrap" data-domain="區塊鏈">🔗 區塊鏈</button>
+                <button class="domain-filter-btn bg-white text-gray-600 border border-gray-300 hover:bg-blue-50 px-3 py-1 rounded-full text-xs font-semibold transition whitespace-nowrap" data-domain="資訊安全">🔒 資訊安全</button>
+                <button class="domain-filter-btn bg-white text-gray-600 border border-gray-300 hover:bg-blue-50 px-3 py-1 rounded-full text-xs font-semibold transition whitespace-nowrap" data-domain="監理政策">⚖️ 監理政策</button>
+            </div>
+            <!-- 篩選3：集團篩選 -->
+            <div id="groupFilterRow" class="flex flex-wrap items-center gap-2 mb-3">
+                <span class="text-sm font-medium text-gray-600 whitespace-nowrap">🏢 集團：</span>
+                <button class="group-filter-btn bg-indigo-600 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-sm transition whitespace-nowrap" data-group="ALL">全部</button>
+                <button class="group-filter-btn bg-white text-gray-600 border border-gray-300 hover:bg-indigo-50 px-3 py-1 rounded-full text-xs font-semibold transition whitespace-nowrap" data-group="元大">元大</button>
+                <button class="group-filter-btn bg-white text-gray-600 border border-gray-300 hover:bg-indigo-50 px-3 py-1 rounded-full text-xs font-semibold transition whitespace-nowrap" data-group="國泰">國泰</button>
+                <button class="group-filter-btn bg-white text-gray-600 border border-gray-300 hover:bg-indigo-50 px-3 py-1 rounded-full text-xs font-semibold transition whitespace-nowrap" data-group="富邦">富邦</button>
+                <button class="group-filter-btn bg-white text-gray-600 border border-gray-300 hover:bg-indigo-50 px-3 py-1 rounded-full text-xs font-semibold transition whitespace-nowrap" data-group="中信">中信</button>
+                <button class="group-filter-btn bg-white text-gray-600 border border-gray-300 hover:bg-indigo-50 px-3 py-1 rounded-full text-xs font-semibold transition whitespace-nowrap" data-group="玉山">玉山</button>
+                <button class="group-filter-btn bg-white text-gray-600 border border-gray-300 hover:bg-indigo-50 px-3 py-1 rounded-full text-xs font-semibold transition whitespace-nowrap" data-group="永豐">永豐</button>
+                <button class="group-filter-btn bg-white text-gray-600 border border-gray-300 hover:bg-indigo-50 px-3 py-1 rounded-full text-xs font-semibold transition whitespace-nowrap" data-group="台新">台新</button>
+                <button class="group-filter-btn bg-white text-gray-600 border border-gray-300 hover:bg-indigo-50 px-3 py-1 rounded-full text-xs font-semibold transition whitespace-nowrap" data-group="凱基">凱基</button>
+                <button class="group-filter-btn bg-white text-gray-600 border border-gray-300 hover:bg-indigo-50 px-3 py-1 rounded-full text-xs font-semibold transition whitespace-nowrap" data-group="兆豐">兆豐</button>
+                <button class="group-filter-btn bg-white text-gray-600 border border-gray-300 hover:bg-indigo-50 px-3 py-1 rounded-full text-xs font-semibold transition whitespace-nowrap" data-group="第一">第一</button>
+                <button class="group-filter-btn bg-white text-gray-600 border border-gray-300 hover:bg-indigo-50 px-3 py-1 rounded-full text-xs font-semibold transition whitespace-nowrap" data-group="合庫">合庫</button>
+                <button class="group-filter-btn bg-white text-gray-600 border border-gray-300 hover:bg-indigo-50 px-3 py-1 rounded-full text-xs font-semibold transition whitespace-nowrap" data-group="華南">華南</button>
+            </div>
+            <!-- 篩選4：業別篩選 -->
+            <div id="typeFilterRow" class="flex flex-wrap items-center gap-2 mb-3">
+                <span class="text-sm font-medium text-gray-600 whitespace-nowrap">🏦 業別：</span>
+                <button class="type-filter-btn bg-teal-600 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-sm transition whitespace-nowrap" data-type="ALL">全部</button>
+                <button class="type-filter-btn bg-white text-gray-600 border border-gray-300 hover:bg-teal-50 px-3 py-1 rounded-full text-xs font-semibold transition whitespace-nowrap" data-type="金控">金控</button>
+                <button class="type-filter-btn bg-white text-gray-600 border border-gray-300 hover:bg-teal-50 px-3 py-1 rounded-full text-xs font-semibold transition whitespace-nowrap" data-type="銀行">銀行</button>
+                <button class="type-filter-btn bg-white text-gray-600 border border-gray-300 hover:bg-teal-50 px-3 py-1 rounded-full text-xs font-semibold transition whitespace-nowrap" data-type="人壽">人壽</button>
+                <button class="type-filter-btn bg-white text-gray-600 border border-gray-300 hover:bg-teal-50 px-3 py-1 rounded-full text-xs font-semibold transition whitespace-nowrap" data-type="產險">產險</button>
+                <button class="type-filter-btn bg-white text-gray-600 border border-gray-300 hover:bg-teal-50 px-3 py-1 rounded-full text-xs font-semibold transition whitespace-nowrap" data-type="證券">證券</button>
+                <button class="type-filter-btn bg-white text-gray-600 border border-gray-300 hover:bg-teal-50 px-3 py-1 rounded-full text-xs font-semibold transition whitespace-nowrap" data-type="投信">投信</button>
+                <button class="type-filter-btn bg-white text-gray-600 border border-gray-300 hover:bg-teal-50 px-3 py-1 rounded-full text-xs font-semibold transition whitespace-nowrap" data-type="投顧">投顧</button>
+                <button class="type-filter-btn bg-white text-gray-600 border border-gray-300 hover:bg-teal-50 px-3 py-1 rounded-full text-xs font-semibold transition whitespace-nowrap" data-type="期貨">期貨</button>
+            </div>
+            <div class="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+                <div class="flex items-center gap-2">
+                    <span class="text-sm font-medium text-gray-600">📅 篩選月份：</span>
+                    <select id="monthSelector" class="border border-gray-300 rounded-lg p-2 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                        <option value="ALL">全部顯示 (All)</option>
+                    </select>
+                </div>
+                <div class="relative flex-1 min-w-[200px]">
+                    <input type="text" id="watchSearchInput" placeholder="搜尋新聞..."
+                           class="w-full pl-10 pr-10 py-2 rounded-lg border border-gray-300 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm">
+                    <svg class="w-4 h-4 text-gray-400 absolute left-3 top-2.5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                    <button id="watchClearSearch" class="hidden absolute right-3 top-2.5 text-gray-400 hover:text-gray-600" aria-label="清除搜尋">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- card list -->
+        <div id="timelineContainer">
+        </div>
+        <div id="paginationContainer"></div>
+
+    </main>
+
+    <footer class="bg-blue-900 text-blue-200 text-center py-6 text-xs mt-8">
+      <p class="mt-1 text-blue-400">元大金控 數位金融事業處 · 內部參考用途</p>
+    </footer>
+
+    <script>
+        const URL_FINANCE = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSIk2DNeHriB4uTPLwvkQpPE8S-saggIUIIB1sidpnEfu-Tuf9oTqVqBEa0SW8dssXPFHiYznLmnxvh/pub?output=csv';
+        const URL_FINTECH = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRzpNhe3I59MkynD4xp6Qe1DmCrUzL-qxOO7yQuspXxQ9MZ_0IOE9m3xi5h4DAVv_vR_P-kQgGYKlCN/pub?output=csv';
+
+        let allFinanceData = [];
+        let currentMarketFilter  = 'DOMESTIC';
+        let currentMonthFilter   = 'ALL';
+        let currentDomainFilter  = 'ALL';
+        let currentGroupFilter   = 'ALL';
+        let currentTypeFilter    = 'ALL';
+        let currentSearchTerm    = '';
+        const ITEMS_PER_PAGE = 10;
+        let currentPage      = 1;
+
+        const GROUP_MAP = {
+            '元大': ['元大金控','元大銀行','元大投信','元大投顧','元大證券','元大期貨','元大人壽','元大創投','元大國際資產(AMC)','元大證金'],
+            '國泰': ['國泰金控','國泰人壽','國泰世華銀行','國泰產險','國泰投信','國泰證券'],
+            '富邦': ['富邦金控','台北富邦銀行','富邦人壽','富邦產險','富邦證券','富邦投信'],
+            '中信': ['中信金控','中國信託商業銀行','台灣人壽','中信證券','中信投信'],
+            '玉山': ['玉山金控','玉山銀行','玉山證券','玉山投信','三商美邦人壽'],
+            '永豐': ['永豐金控','永豐銀行','永豐金證券','永豐投信','京城銀行'],
+            '兆豐': ['兆豐金控','兆豐銀行','兆豐證券','兆豐產險','兆豐投信','兆豐期貨'],
+            '第一': ['第一金控','第一銀行','第一金人壽','第一金證券','第一金投信'],
+            '台新': ['台新金控','台新銀行','台新人壽','新光人壽','台新證券','台新投信','台新投顧','新光銀行'],
+            '合庫': ['合庫金控','合作金庫銀行','合庫證券','合庫人壽','合庫投信'],
+            '華南': ['華南金控','華南銀行','華南永昌證券','華南產險','華南永昌投信'],
+            '凱基': ['開發金控','凱基銀行','凱基證券','凱基投信','凱基金控'],
+        };
+
+        const GROUP_ORDER = ['元大','國泰','富邦','中信','玉山','永豐','台新','凱基','兆豐','第一','合庫','華南'];
+
+        function getGroupIndex(entity) {
+            for (let i = 0; i < GROUP_ORDER.length; i++) {
+                if ((GROUP_MAP[GROUP_ORDER[i]] || []).includes(entity)) return i;
+            }
+            return GROUP_ORDER.length;
+        }
+
+        const TYPE_MAP = {
+            '金控': ['國泰金控','富邦金控','中信金控','玉山金控','永豐金控','元大金控','兆豐金控','第一金控','台新金控','合庫金控','華南金控','開發金控','凱基金控'],
+            '銀行': ['國泰世華銀行','台北富邦銀行','中國信託商業銀行','玉山銀行','永豐銀行','京城銀行','元大銀行','兆豐銀行','第一銀行','台新銀行','新光銀行','合作金庫銀行','華南銀行','凱基銀行','台灣銀行','土地銀行'],
+            '人壽': ['國泰人壽','富邦人壽','台灣人壽','三商美邦人壽','元大人壽','台新人壽','新光人壽','凱基人壽','第一金人壽','合庫人壽'],
+            '產險': ['國泰產險','富邦產險','兆豐產險','華南產險'],
+            '證券': ['國泰證券','富邦證券','中信證券','玉山證券','永豐金證券','元大證券','兆豐證券','第一金證券','台新證券','合庫證券','華南永昌證券','凱基證券'],
+            '投信': ['國泰投信','富邦投信','中信投信','玉山投信','永豐投信','元大投信','兆豐投信','第一金投信','台新投信','合庫投信','凱基投信','華南永昌投信'],
+            '投顧': ['元大投顧','台新投顧'],
+            '期貨': ['元大期貨','兆豐期貨'],
+        };
+
+        const DOMAIN_ALIASES = {
+            '行動App': ['行動App', '行動APP'],
+            '資訊安全': ['資訊安全', '資安'],
+            '支付工具': ['支付工具', '數位平台'],
+        };
+
+        // 單選篩選：市場、業別
+        function makeToggleHandler(btnClass, activeClasses, inactiveClasses, currentRef, setter) {
+            document.querySelectorAll(btnClass).forEach(btn => {
+                btn.addEventListener('click', e => {
+                    const val = Object.values(e.currentTarget.dataset)[0];
+                    const next = (val !== 'ALL' && val === currentRef()) ? 'ALL' : val;
+                    setter(next);
+                    document.querySelectorAll(btnClass).forEach(b => {
+                        const bVal = Object.values(b.dataset)[0];
+                        const active = (next === 'ALL') ? bVal === 'ALL' : bVal === next;
+                        b.classList.toggle(activeClasses[0], active);
+                        b.classList.toggle(activeClasses[1], active);
+                        b.classList.toggle('shadow-sm', active);
+                        b.classList.toggle(inactiveClasses[0], !active);
+                        b.classList.toggle(inactiveClasses[1], !active);
+                        b.classList.toggle('border', !active);
+                        b.classList.toggle('border-gray-300', !active);
+                    });
+                    renderTimeline();
+                });
+            });
+        }
+
+        // 多選篩選：領域、集團
+        function makeMultiToggleHandler(btnClass, activeClasses, inactiveClasses, currentSet) {
+            document.querySelectorAll(btnClass).forEach(btn => {
+                btn.addEventListener('click', e => {
+                    const val = Object.values(e.currentTarget.dataset)[0];
+                    if (val === 'ALL') {
+                        currentSet.clear();
+                    } else {
+                        if (currentSet.has(val)) currentSet.delete(val);
+                        else currentSet.add(val);
+                    }
+                    document.querySelectorAll(btnClass).forEach(b => {
+                        const bVal = Object.values(b.dataset)[0];
+                        const active = bVal === 'ALL' ? currentSet.size === 0 : currentSet.has(bVal);
+                        b.classList.toggle(activeClasses[0], active);
+                        b.classList.toggle(activeClasses[1], active);
+                        b.classList.toggle('shadow-sm', active);
+                        b.classList.toggle(inactiveClasses[0], !active);
+                        b.classList.toggle(inactiveClasses[1], !active);
+                        b.classList.toggle('border', !active);
+                        b.classList.toggle('border-gray-300', !active);
+                    });
+                    renderTimeline();
+                });
+            });
+        }
+
+        document.getElementById('menuToggle').addEventListener('click', () => {
+            document.getElementById('mobileMenu').classList.toggle('hidden');
+        });
+
+        function fetchCSV(url) {
+            return new Promise((resolve, reject) => {
+                Papa.parse(url, {
+                    download: true,
+                    header: true,
+                    skipEmptyLines: true,
+                    complete: results => resolve(results.data),
+                    error: err => { console.error("CSV 讀取錯誤:", err); reject(err); }
+                });
+            });
+        }
+
+        function isDomesticNews(news) {
+            const loc = (news['location'] || '').toLowerCase();
+            const isChina = loc.includes('china') || loc.includes('beijing') || loc.includes('shanghai')
+                         || loc.includes('中國') || loc.includes('北京') || loc.includes('上海')
+                         || loc.includes('guangzhou') || loc.includes('shenzhen') || loc.includes('guangdong');
+            const isTaiwan = loc.includes('taiwan') || loc.includes('taipei');
+            return isTaiwan && !isChina;
+        }
+
+        const DOMAIN_BAR_COLORS = {
+            'AI':       'bg-blue-400',
+            '行動App':  'bg-pink-400',
+            '行動APP':  'bg-pink-400',
+            '支付工具': 'bg-purple-400',
+            '數位平台': 'bg-purple-400',
+            '信用貸款': 'bg-orange-400',
+            '數位帳戶': 'bg-indigo-400',
+            '智能客服': 'bg-cyan-400',
+            '智能理財': 'bg-emerald-400',
+            '區塊鏈':   'bg-teal-400',
+            '資訊安全': 'bg-red-400',
+            '資安':     'bg-red-400',
+            '監理政策': 'bg-green-400',
+        };
+
+        const domainBadgeMap = {
+            'AI':       { bg: 'bg-blue-100',    text: 'text-blue-700',    label: '🤖 AI' },
+            '行動App':  { bg: 'bg-pink-100',    text: 'text-pink-700',    label: '📲 行動App' },
+            '行動APP':  { bg: 'bg-pink-100',    text: 'text-pink-700',    label: '📲 行動App' },
+            '支付工具': { bg: 'bg-purple-100',  text: 'text-purple-700',  label: '💳 支付工具' },
+            '數位平台': { bg: 'bg-purple-100',  text: 'text-purple-700',  label: '💳 支付工具' },
+            '信用貸款': { bg: 'bg-orange-100',  text: 'text-orange-700',  label: '🏦 信用貸款' },
+            '數位帳戶': { bg: 'bg-indigo-100',  text: 'text-indigo-700',  label: '🏧 數位帳戶' },
+            '智能客服': { bg: 'bg-cyan-100',    text: 'text-cyan-700',    label: '🤝 智能客服' },
+            '智能理財': { bg: 'bg-emerald-100', text: 'text-emerald-700', label: '📈 智能理財' },
+            '區塊鏈':   { bg: 'bg-teal-100',    text: 'text-teal-700',    label: '🔗 區塊鏈' },
+            '資訊安全': { bg: 'bg-red-100',     text: 'text-red-700',     label: '🔒 資訊安全' },
+            '資安':     { bg: 'bg-red-100',     text: 'text-red-700',     label: '🔒 資訊安全' },
+            '監理政策': { bg: 'bg-green-100',   text: 'text-green-700',   label: '⚖️ 監理政策' },
+        };
+
+        function buildCard(news, domestic) {
+            const dateStr = news['publish_date'] || '';
+            const day = dateStr.length >= 10 ? dateStr.substring(8, 10) : '';
+
+            let insight = (news['pm_insight'] || '').replace(/\*\*(.*?)\*\*/g, '<strong class="text-amber-700">$1</strong>');
+            const yuantaLines = (news['yuanta_insight'] || '')
+                .split(/\s*[／\n]\s*/)
+                .filter(Boolean)
+                .map(line => line.replace(/【(.*?)】/g, '<span class="font-bold text-blue-700">【$1】</span>'));
+
+            const accentText = domestic ? 'text-green-700' : 'text-amber-700';
+            const domainRaw  = news['domain_category'] || 'AI';
+            const domainList = domainRaw.split(',').map(s => s.trim()).filter(Boolean);
+            const badges     = domainList.map(d => domainBadgeMap[d] || { bg: 'bg-gray-100', text: 'text-gray-600', label: d });
+            const barColor   = DOMAIN_BAR_COLORS[domainList[0]] || 'bg-gray-300';
+
+            const entitiesStr  = news['entities'] || '';
+            const entitiesList = (entitiesStr ? entitiesStr.split(',').map(s => s.trim()).filter(Boolean) : [])
+                .sort((a, b) => getGroupIndex(a) - getGroupIndex(b));
+            let entityBadges = '';
+            if (entitiesList.length > 0) {
+                entityBadges = entitiesList.map(e =>
+                    `<span class="text-xs font-semibold ${accentText} bg-gray-50 border border-gray-200 px-2 py-0.5 rounded-full">${e}</span>`
+                ).join('');
+            } else if (news['main_company']) {
+                entityBadges = `<span class="text-xs font-semibold ${accentText} bg-gray-50 border border-gray-200 px-2 py-0.5 rounded-full">${news['main_company']}</span>`;
+            }
+
+            const hasInsight = !!(insight || yuantaLines.length > 0);
+
+            return `
+                <div class="flex gap-4 py-5 last:pb-6">
+                    <div class="flex-shrink-0 w-9 text-right pt-1">
+                        <span class="text-3xl font-black leading-none select-none" style="color:#e5e7eb;">${day}</span>
+                    </div>
+                    <div class="flex-shrink-0 w-0.5 self-stretch rounded-full ${barColor} opacity-50"></div>
+                    <div class="flex-1 min-w-0 ${hasInsight ? 'grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 items-start' : ''}">
+                        <div>
+                            <h3 class="font-bold text-gray-900 text-base leading-snug mb-2">${news['title']}</h3>
+                            <div class="flex flex-wrap gap-1.5 mb-1">
+                                ${badges.map(b => `<span class="${b.bg} ${b.text} text-xs px-2 py-0.5 rounded-full font-semibold">${b.label}</span>`).join('')}
+                            </div>
+                            ${entityBadges ? `<div class="flex flex-wrap gap-1.5 mb-2">${entityBadges}</div>` : '<div class="mb-2"></div>'}
+                            <p class="text-sm text-gray-600 leading-relaxed mb-3">${news['summary']}</p>
+                            <div class="flex items-center gap-3 text-xs text-gray-400">
+                                ${news['source_name'] ? `<span>${news['source_name']}</span>` : ''}
+                                ${news['url'] ? `<a href="${news['url']}" target="_blank" class="text-orange-500 hover:underline font-medium">閱讀原文 →</a>` : ''}
+                            </div>
+                        </div>
+                        ${hasInsight ? `
+                        <div class="space-y-2 md:border-l md:border-gray-100 md:pl-6">
+                            ${insight ? `
+                            <div class="bg-amber-50 rounded-lg px-3 py-2.5">
+                                <p class="text-sm font-bold text-amber-600 mb-1.5">💡 關鍵洞察</p>
+                                <p class="text-sm text-gray-700 leading-relaxed">${insight}</p>
+                            </div>
+                            ` : ''}
+                            ${yuantaLines.length > 0 ? `
+                            <div class="bg-blue-50 rounded-lg px-3 py-2.5">
+                                <p class="text-sm font-bold text-blue-700 mb-2">🏛️ 元大洞察</p>
+                                <div class="space-y-3">
+                                    ${yuantaLines.map(line => `<p class="text-sm text-gray-700 leading-relaxed">${line}</p>`).join('')}
+                                </div>
+                            </div>
+                            ` : ''}
+                        </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        function formatMonth(ym) {
+            if (!ym) return '';
+            const [y, m] = ym.split('-');
+            return `${y} 年 ${parseInt(m, 10)} 月`;
+        }
+
+        function updateFilterRowVisibility() {
+            const groupRow = document.getElementById('groupFilterRow');
+            const typeRow  = document.getElementById('typeFilterRow');
+            const isGlobal = currentMarketFilter === 'GLOBAL';
+            if (groupRow) groupRow.style.display = isGlobal ? 'none' : '';
+            if (typeRow)  typeRow.style.display  = isGlobal ? 'none' : '';
+        }
+
+        function initMarketTabs() {
+            const tabs = document.querySelectorAll('.market-tab');
+            function setActiveTab(val) {
+                tabs.forEach(t => {
+                    const active = t.dataset.market === val;
+                    t.classList.toggle('bg-white',      active);
+                    t.classList.toggle('shadow-sm',     active);
+                    t.classList.toggle('text-blue-900', active);
+                    t.classList.toggle('text-gray-500', !active);
+                });
+            }
+            setActiveTab(currentMarketFilter);
+            tabs.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const val = btn.dataset.market;
+                    if (val === currentMarketFilter) return;
+                    currentMarketFilter = val;
+                    if (val === 'GLOBAL') {
+                        currentGroupFilter = 'ALL';
+                        currentTypeFilter  = 'ALL';
+                        document.querySelectorAll('.group-filter-btn').forEach(b => {
+                            const isAll = b.dataset.group === 'ALL';
+                            b.classList.toggle('bg-indigo-600',   isAll);
+                            b.classList.toggle('text-white',      isAll);
+                            b.classList.toggle('shadow-sm',       isAll);
+                            b.classList.toggle('bg-white',        !isAll);
+                            b.classList.toggle('text-gray-600',   !isAll);
+                            b.classList.toggle('border',          !isAll);
+                            b.classList.toggle('border-gray-300', !isAll);
+                        });
+                        document.querySelectorAll('.type-filter-btn').forEach(b => {
+                            const isAll = b.dataset.type === 'ALL';
+                            b.classList.toggle('bg-teal-600',     isAll);
+                            b.classList.toggle('text-white',      isAll);
+                            b.classList.toggle('shadow-sm',       isAll);
+                            b.classList.toggle('bg-white',        !isAll);
+                            b.classList.toggle('text-gray-600',   !isAll);
+                            b.classList.toggle('border',          !isAll);
+                            b.classList.toggle('border-gray-300', !isAll);
+                        });
+                    }
+                    setActiveTab(val);
+                    updateFilterRowVisibility();
+                    renderTimeline();
+                });
+            });
+        }
+
+        async function initData() {
+            try {
+                if (URL_FINANCE.includes('YOUR_')) {
+                    document.getElementById('timelineContainer').innerHTML = "<p class='text-center text-red-500'>need to check google sheet URL</p>";
+                    return;
+                }
+
+                const fetches = [fetchCSV(URL_FINANCE)];
+                if (URL_FINTECH) fetches.push(fetchCSV(URL_FINTECH));
+                const results = await Promise.all(fetches);
+
+                const aiNews = results[0].map(row => ({ ...row, domain_category: row['domain_category'] || 'AI' }));
+                const fintechNews = results[1] ? results[1] : [];
+                allFinanceData = [...aiNews, ...fintechNews];
+
+                const monthSet = new Set();
+                allFinanceData.forEach(row => {
+                    if (row['publish_date']) monthSet.add(row['publish_date'].substring(0, 7));
+                });
+                const availableMonths = Array.from(monthSet).sort((a, b) => b.localeCompare(a));
+
+                const monthSelector = document.getElementById('monthSelector');
+                availableMonths.forEach(month => {
+                    const option = document.createElement('option');
+                    option.value = month;
+                    option.textContent = month;
+                    monthSelector.appendChild(option);
+                });
+
+                monthSelector.addEventListener('change', e => {
+                    currentMonthFilter = e.target.value;
+                    renderTimeline();
+                });
+
+                const searchInput = document.getElementById('watchSearchInput');
+                const clearSearch = document.getElementById('watchClearSearch');
+                searchInput.addEventListener('input', e => {
+                    currentSearchTerm = e.target.value;
+                    clearSearch.classList.toggle('hidden', !currentSearchTerm);
+                    renderTimeline();
+                });
+                clearSearch.addEventListener('click', () => {
+                    searchInput.value = '';
+                    currentSearchTerm = '';
+                    clearSearch.classList.add('hidden');
+                    renderTimeline();
+                });
+
+                initMarketTabs();
+                updateFilterRowVisibility();
+
+                makeToggleHandler('.domain-filter-btn', ['bg-orange-500','text-white'], ['bg-white','text-gray-600'],
+                    () => currentDomainFilter, v => { currentDomainFilter = v; });
+                makeToggleHandler('.group-filter-btn',  ['bg-indigo-600','text-white'], ['bg-white','text-gray-600'],
+                    () => currentGroupFilter,  v => { currentGroupFilter  = v; });
+                makeToggleHandler('.type-filter-btn',   ['bg-teal-600','text-white'],   ['bg-white','text-gray-600'],
+                    () => currentTypeFilter,   v => { currentTypeFilter   = v; });
+
+                renderTimeline();
+
+            } catch (error) {
+                document.getElementById('timelineContainer').innerHTML = "<p class='text-center text-red-500'>need to check the URL and your network connection</p>";
+            }
+        }
+
+        function renderTimeline(resetPage = true) {
+            if (resetPage) currentPage = 1;
+            const container = document.getElementById('timelineContainer');
+            container.innerHTML = '';
+
+            let data = allFinanceData;
+
+            // 市場篩選
+            if (currentMarketFilter === 'DOMESTIC') {
+                data = data.filter(row => isDomesticNews(row));
+            } else if (currentMarketFilter === 'GLOBAL') {
+                data = data.filter(row => !isDomesticNews(row));
+            }
+
+            // 領域篩選（單選；支援文章多分類逗號分隔；向下相容舊值）
+            if (currentDomainFilter !== 'ALL') {
+                data = data.filter(row => {
+                    const rawDomains = (row['domain_category'] || 'AI').split(',').map(s => s.trim());
+                    const expanded = new Set(rawDomains);
+                    rawDomains.forEach(d => {
+                        Object.entries(DOMAIN_ALIASES).forEach(([key, vals]) => {
+                            if (vals.includes(d)) expanded.add(key);
+                        });
+                    });
+                    const targets = new Set(DOMAIN_ALIASES[currentDomainFilter] || []);
+                    targets.add(currentDomainFilter);
+                    return [...targets].some(t => expanded.has(t));
+                });
+            }
+
+            if (currentMonthFilter !== 'ALL') {
+                data = data.filter(row => (row['publish_date'] || '').substring(0, 7) === currentMonthFilter);
+            }
+
+            // 集團篩選（單選）（與[業別]取交集；無業別選擇時全量比對）
+            if (currentGroupFilter !== 'ALL') {
+                data = data.filter(row => {
+                    const ents = (row['entities'] || '').split(',').map(s => s.trim());
+                    const groupEnts = new Set(GROUP_MAP[currentGroupFilter] || []);
+                    return ents.some(e => groupEnts.has(e));
+                });
+            }
+
+            // 業別篩選（單選）（與[集團]取交集；無集團選擇時全量比對）
+            if (currentTypeFilter !== 'ALL') {
+                const typeEnts = new Set(TYPE_MAP[currentTypeFilter] || []);
+                data = data.filter(row => {
+                    const ents = (row['entities'] || '').split(',').map(s => s.trim());
+                    if (currentGroupFilter !== 'ALL') {
+                        const groupEnts = new Set(GROUP_MAP[currentGroupFilter] || []);
+                        return ents.some(e => typeEnts.has(e) && groupEnts.has(e));
+                    }
+                    return ents.some(e => typeEnts.has(e));
+                });
+            }
+
+            if (currentSearchTerm) {
+                const term = currentSearchTerm.toLowerCase();
+                data = data.filter(row => {
+                    const h = `${row['title']} ${row['summary']} ${row['entities']} ${row['main_company']} ${row['pm_insight']} ${row['yuanta_insight']}`.toLowerCase();
+                    return h.includes(term);
+                });
+            }
+            data.sort((a, b) => new Date(b['publish_date']) - new Date(a['publish_date']));
+
+            if (data.length === 0) {
+                container.innerHTML = "<p class='text-center text-gray-500 py-12'>no data in this session!</p>";
+                renderWatchPagination(0, 0);
+                return;
+            }
+
+            const totalItems = data.length;
+            const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+            if (currentPage > totalPages) currentPage = Math.max(1, totalPages);
+
+            // 計算單月新聞數
+            const monthTotalMap = {};
+            data.forEach(news => {
+                const m = (news['publish_date'] || '').substring(0, 7);
+                monthTotalMap[m] = (monthTotalMap[m] || 0) + 1;
+            });
+            const monthRankMap = new Map();
+            const monthCounter = {};
+            data.forEach(news => {
+                const m = (news['publish_date'] || '').substring(0, 7);
+                monthCounter[m] = (monthCounter[m] || 0) + 1;
+                monthRankMap.set(news, monthCounter[m]);
+            });
+
+            const pageData = data.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+
+            const monthGroups = {};
+            const monthOrder  = [];
+            pageData.forEach(news => {
+                const month = (news['publish_date'] || '').substring(0, 7);
+                if (!monthGroups[month]) { monthGroups[month] = []; monthOrder.push(month); }
+                monthGroups[month].push(news);
+            });
+
+            monthOrder.forEach(month => {
+                const cards = monthGroups[month];
+                const minRank = Math.min(...cards.map(n => monthRankMap.get(n)));
+                const maxRank = Math.max(...cards.map(n => monthRankMap.get(n)));
+                const total   = monthTotalMap[month];
+                const rankLabel = minRank === maxRank
+                    ? `${minRank} / ${total} 則`
+                    : `${minRank}–${maxRank} / ${total} 則`;
+                container.innerHTML += `
+                    <div class="bg-white rounded-2xl border border-gray-200 shadow-sm mb-6 overflow-hidden">
+                        <div class="bg-gray-50 border-b border-gray-100 px-6 py-3 flex items-center justify-between">
+                            <span class="text-sm font-bold text-gray-700">${formatMonth(month)}</span>
+                            <span class="text-xs text-gray-400 bg-white border border-gray-200 px-2.5 py-0.5 rounded-full">${rankLabel}</span>
+                        </div>
+                        <div class="divide-y divide-gray-100 px-6">
+                            ${cards.map(n => buildCard(n, isDomesticNews(n))).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+
+            renderWatchPagination(totalPages, totalItems);
+        }
+
+        function renderWatchPagination(totalPages, totalItems) {
+            const el = document.getElementById('paginationContainer');
+            if (!el) return;
+            if (totalPages <= 1) { el.innerHTML = ''; return; }
+            const startItem = (currentPage - 1) * ITEMS_PER_PAGE + 1;
+            const endItem = Math.min(currentPage * ITEMS_PER_PAGE, totalItems);
+            let pages = '';
+            let s = Math.max(1, currentPage - 2), e = Math.min(totalPages, s + 4);
+            if (e - s < 4) s = Math.max(1, e - 4);
+            for (let i = s; i <= e; i++) {
+                const a = i === currentPage;
+                pages += `<button onclick="goToWatchPage(${i})" class="w-8 h-8 rounded-lg text-sm font-semibold transition ${a ? 'bg-blue-600 text-white shadow-sm' : 'bg-white text-gray-600 border border-gray-300 hover:bg-blue-50'}">${i}</button>`;
+            }
+            el.innerHTML = `<div class="flex items-center justify-center gap-2 py-6">
+                <button onclick="goToWatchPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''} class="px-3 py-1.5 rounded-lg text-sm font-semibold border border-gray-300 bg-white hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition">← 上一頁</button>
+                <div class="flex gap-1">${pages}</div>
+                <button onclick="goToWatchPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''} class="px-3 py-1.5 rounded-lg text-sm font-semibold border border-gray-300 bg-white hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition">下一頁 →</button>
+                <span class="text-xs text-gray-400 ml-2">${startItem}–${endItem} / ${totalItems} 則</span>
+            </div>`;
+        }
+
+        function goToWatchPage(page) {
+            currentPage = page;
+            renderTimeline(false);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        window.addEventListener('DOMContentLoaded', initData);
+    </script>
+</body>
+</html>

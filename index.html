@@ -1,0 +1,1619 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>數金情報站</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <style>
+        html { scroll-behavior: smooth; }
+
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background-color: #d1d5db; border-radius: 20px; }
+
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang TC', 'Noto Sans TC', sans-serif; }
+
+        /* Details */
+        .details-chevron { transition: transform 0.2s ease; }
+        details[open] .details-chevron { transform: rotate(90deg); }
+        details > summary { list-style: none; }
+        details > summary::-webkit-details-marker { display: none; }
+
+        /* Tab panels */
+        .comp-tab-panel { display: none; }
+        .comp-tab-panel.active { display: block; }
+
+        /* Section nav */
+        .section-nav-link, .q-section-nav-link {
+            position: relative;
+            transition: background 0.15s, color 0.15s;
+        }
+        .section-nav-link.active, .q-section-nav-link.active {
+            color: #1e3a8a;
+            background-color: #eff6ff;
+            font-weight: 600;
+            border-left: 3px solid #f97316;
+            padding-left: calc(0.75rem - 3px);
+        }
+
+        .main-tab-btn { transition: all 0.15s; }
+
+        /* Weekly two-panel nav */
+        .weekly-nav-item {
+            display: flex; align-items: flex-start; gap: 8px;
+            padding: 6px 10px; border-radius: 8px;
+            cursor: pointer; text-align: left; width: 100%;
+            border: none; background: none; transition: background 0.12s;
+        }
+        .weekly-nav-item:hover { background: #f8fafc; }
+        .weekly-nav-item.active { background: #eff6ff; }
+        .weekly-nav-item.active .nav-title { color: #1d4ed8; font-weight: 500; }
+        .weekly-nav-item .nav-num {
+            font-size: 10px; color: #9ca3af;
+            font-family: ui-monospace, monospace;
+            flex-shrink: 0; margin-top: 3px; width: 16px; text-align: right;
+        }
+        .weekly-nav-item.active .nav-num { color: #93c5fd; }
+        .weekly-nav-item .nav-title {
+            font-size: 12px; color: #4b5563; line-height: 1.45;
+        }
+
+        /* Mobile nav button */
+        #mobileNavBtn {
+            position: fixed; bottom: 24px; right: 16px; z-index: 100;
+            width: 48px; height: 48px;
+            background: #1d4ed8; color: white;
+            border-radius: 12px; border: none; cursor: pointer;
+            display: none; flex-direction: column;
+            align-items: center; justify-content: center; gap: 1px;
+            box-shadow: 0 4px 20px rgba(29,78,216,0.4);
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+        #mobileNavBtn:active { transform: scale(0.93); }
+        #mobileNavBtn.visible { display: flex; }
+        @media (min-width: 1024px) { #mobileNavBtn { display: none !important; } }
+
+        /* Mobile nav drawer */
+        #mobileNavOverlay {
+            position: fixed; inset: 0; z-index: 151;
+            background: rgba(10,20,40,0.45);
+            backdrop-filter: blur(3px);
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.25s;
+        }
+        #mobileNavOverlay.open { opacity: 1; pointer-events: auto; }
+        #mobileNavDrawer {
+            position: fixed; left: 0; right: 0; bottom: 0; z-index: 152;
+            background: white; border-radius: 20px 20px 0 0;
+            max-height: 72vh; display: flex; flex-direction: column;
+            transform: translateY(110%);
+            transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+            box-shadow: 0 -8px 40px rgba(0,0,0,0.15);
+        }
+        #mobileNavDrawer.open { transform: translateY(0); }
+
+        /* Monthly bottom nav */
+        #monthlyBottomNav, #quarterlyBottomNav {
+            position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+            background: rgba(255,255,255,0.97);
+            border-top: 1px solid #e5e7eb;
+            box-shadow: 0 -2px 16px rgba(0,0,0,0.07);
+            backdrop-filter: blur(12px);
+        }
+        .bnav-btn {
+            flex: 1; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            padding: 8px 2px 10px; gap: 3px;
+            font-size: 10px; color: #9ca3af;
+            transition: color 0.15s; border: none; background: none;
+        }
+        .bnav-btn svg { width: 18px; height: 18px; }
+        .bnav-btn.active { color: #1d4ed8; }
+
+        /* Card depth */
+        .card { box-shadow: 0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04); }
+        .card-hover:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08), 0 16px 40px rgba(0,0,0,0.06); }
+
+        /* Gradient hero background pattern */
+        .hero-bg {
+            background: linear-gradient(135deg, #0f2460 0%, #1e3a8a 50%, #1e40af 100%);
+        }
+        .hero-bg-monthly {
+            background: linear-gradient(135deg, #0f2460 0%, #312e81 60%, #4338ca 100%);
+        }
+        .hero-bg-quarterly {
+            background: linear-gradient(135deg, #0f2460 0%, #312e81 60%, #4338ca 100%);
+        }
+        /* Quarterly timeline vertical spine */
+        .q-timeline-spine {
+            background: linear-gradient(to bottom, #4338ca 0%, #4f46e5 50%, #2563eb 100%);
+        }
+
+        /* Tag pill */
+        .tag-pill {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 500;
+            background: #eff6ff;
+            color: #3b82f6;
+        }
+
+        /* Insight block */
+        .insight-block {
+            border-left: 4px solid #f97316;
+            background: linear-gradient(to right, #fff7ed, #fffbf7);
+        }
+        .yuanta-block {
+            border-left: 4px solid #3b82f6;
+            background: linear-gradient(to right, #eff6ff, #f8faff);
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-gray-800 antialiased">
+
+    <!-- NAVBAR -->
+    <nav class="hero-bg text-white sticky top-0 z-50" style="box-shadow:0 2px 20px rgba(0,0,0,0.25);">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6">
+            <div class="flex items-center justify-between h-14">
+                <!-- Logo -->
+                <a href="index.html" class="flex items-center gap-2.5 flex-shrink-0 group">
+                    <div class="w-7 h-7 rounded-lg bg-orange-500 flex items-center justify-center flex-shrink-0 group-hover:bg-orange-400 transition-colors">
+                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                        </svg>
+                    </div>
+                    <span class="text-sm font-bold tracking-widest group-hover:text-orange-300 transition-colors">數金情報站</span>
+                </a>
+
+                <!-- Desktop tab switcher -->
+                <div class="hidden md:flex items-center bg-white/10 rounded-xl p-1 gap-0.5">
+                    <button id="tab-weekly-btn" onclick="switchMainTab('weekly')"
+                            class="main-tab-btn px-5 py-1.5 rounded-lg text-sm font-semibold bg-white text-blue-900 shadow-sm">
+                        週報
+                    </button>
+                    <button id="tab-monthly-btn" onclick="switchMainTab('monthly')"
+                            class="main-tab-btn px-5 py-1.5 rounded-lg text-sm font-semibold text-white/70 hover:text-white">
+                        月報
+                    </button>
+                    <button id="tab-quarterly-btn" onclick="switchMainTab('quarterly')"
+                            class="main-tab-btn px-5 py-1.5 rounded-lg text-sm font-semibold text-white/70 hover:text-white">
+                        季報
+                    </button>
+                </div>
+
+                <!-- Desktop nav links -->
+                <div class="hidden md:flex items-center gap-6 text-sm font-medium">
+                    <a href="index.html" class="text-white/75 hover:text-orange-300 transition-colors flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                        </svg>
+                        AI 趨勢
+                    </a>
+                    <a href="watch.html" class="text-white/75 hover:text-orange-300 transition-colors flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        全球金融科技觀測
+                    </a>
+                    <a href="peer.html" class="text-white/75 hover:text-orange-300 transition-colors flex items-center gap-1.5"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/></svg>
+                        同業概觀</a>
+                    <a href="docs.html" class="text-white/75 hover:text-orange-300 transition-colors flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                        </svg>
+                        知識庫
+                    </a>
+                </div>
+
+                <!-- Mobile menu button -->
+                <button id="menuToggle" class="md:hidden p-2 rounded-lg hover:bg-white/10 transition-colors" aria-label="Menu">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile menu -->
+        <div id="mobileMenu" class="hidden md:hidden border-t border-white/10">
+            <div class="max-w-7xl mx-auto px-4 py-3 space-y-3 text-sm">
+                <div class="flex gap-2">
+                    <button onclick="switchMainTab('weekly'); document.getElementById('mobileMenu').classList.add('hidden');"
+                            class="flex-1 py-2.5 rounded-xl bg-white text-blue-900 font-semibold text-sm shadow-sm">週報</button>
+                    <button onclick="switchMainTab('monthly'); document.getElementById('mobileMenu').classList.add('hidden');"
+                            class="flex-1 py-2.5 rounded-xl bg-white/10 text-white font-semibold text-sm">月報</button>
+                    <button onclick="switchMainTab('quarterly'); document.getElementById('mobileMenu').classList.add('hidden');"
+                            class="flex-1 py-2.5 rounded-xl bg-white/10 text-white font-semibold text-sm">季報</button>
+                </div>
+                <a href="watch.html" class="flex items-center gap-2 text-white/70 hover:text-white py-2 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    全球金融科技觀測
+                </a>
+                <a href="peer.html" class="flex items-center gap-2 text-white/70 hover:text-white py-2 transition-colors"><svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/></svg>
+                    同業概觀</a>
+                <a href="docs.html" class="flex items-center gap-2 text-white/70 hover:text-white py-2 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                    金融科技知識庫
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MAIN -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+
+        <!-- ========================================
+             趨勢週報
+             ======================================== -->
+        <div id="weekly-panel">
+
+            <!-- Weekly hero -->
+            <div class="hero-bg text-white p-8 sm:p-10 rounded-2xl mb-6 relative overflow-hidden" style="box-shadow:0 8px 40px rgba(15,36,96,0.3);">
+                <!-- Decorative circles -->
+                <div class="absolute -top-16 -right-16 w-64 h-64 rounded-full bg-white/5 pointer-events-none"></div>
+                <div class="absolute -bottom-20 -left-10 w-48 h-48 rounded-full bg-orange-500/10 pointer-events-none"></div>
+
+                <div class="relative z-10">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-7 gap-4">
+                        <div>
+                            <p class="text-white/50 text-xs font-semibold uppercase tracking-widest mb-1.5">AI Weekly Intelligence</p>
+                            <h2 class="text-3xl sm:text-4xl font-extrabold tracking-wider mb-1">AI 趨勢週報</h2>
+                            <p class="text-white/60 text-sm" id="headerSubtitle">洞察·趨勢 | 載入中...</p>
+                        </div>
+                        <div class="w-full sm:w-auto flex-shrink-0">
+                            <select id="weekSelector"
+                                    class="w-full sm:w-auto border-0 rounded-xl px-4 py-2.5 bg-white/12 text-white font-medium text-sm focus:outline-none focus:ring-2 focus:ring-white/30 backdrop-blur-sm cursor-pointer [&>option]:text-gray-800"
+                                    style="background-color:rgba(255,255,255,0.12);">
+                                <option value="">載入中...</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Search -->
+                    <div class="relative max-w-2xl mx-auto">
+                        <div class="relative bg-white rounded-full shadow-lg">
+                            <input type="text" id="newsSearchInput" placeholder="搜尋新聞標題、摘要或關鍵字..."
+                                   class="w-full pl-12 pr-10 py-3.5 rounded-full border-0 bg-transparent focus:outline-none text-sm text-gray-700 placeholder-gray-400">
+                            <svg class="w-4.5 h-4.5 text-gray-400 absolute left-5 top-4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:18px;height:18px;">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                            </svg>
+                            <button id="clearSearch" class="hidden absolute right-4 top-3.5 text-gray-400 hover:text-gray-600 p-0.5" aria-label="清除搜尋">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="searchResultCount" class="hidden mb-5 text-center text-sm text-gray-500 font-medium"></div>
+
+            <!-- Summary (above article list) -->
+            <div id="summarySection" class="bg-white rounded-2xl card p-5 mb-4" style="border-top: 3px solid #f97316;">
+                <h3 class="text-base font-bold text-blue-900 mb-3 flex items-center gap-2 uppercase tracking-widest">
+                    <span class="text-orange-500">📋</span> 本週摘要
+                </h3>
+                <div id="summaryText" class="text-gray-750 leading-relaxed text-sm md:text-base space-y-3">資料載入中...</div>
+            </div>
+
+            <!-- Weekly two-panel: nav + detail -->
+            <div class="flex items-start gap-5 mb-24">
+
+                <!-- Sticky sidebar (desktop) -->
+                <nav id="weeklyNav" class="hidden lg:flex flex-col w-56 flex-shrink-0 self-start bg-white rounded-2xl card" style="position:sticky; top:68px; max-height:calc(100vh - 80px);">
+                    <div class="px-4 py-3 border-b border-slate-100 flex-shrink-0 flex items-center justify-between">
+                        <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">本週文章</span>
+                        <span id="weeklyNavCount" class="text-xs text-gray-400"></span>
+                    </div>
+                    <div id="weeklyNavList" class="overflow-y-auto flex-1 p-2"></div>
+                </nav>
+
+                <!-- Article detail -->
+                <div id="weeklyDetail" class="flex-1 min-w-0 bg-white rounded-2xl card p-5 sm:p-8" style="min-height:480px;">
+                    <div class="text-gray-400 text-center py-16 text-sm">載入中...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================
+             趨勢月報
+             ======================================== -->
+        <div id="monthly-panel" class="hidden">
+
+            <!-- Monthly hero -->
+            <div class="hero-bg-monthly text-white p-8 sm:p-10 rounded-2xl mb-6 relative overflow-hidden" style="box-shadow:0 8px 40px rgba(30,20,96,0.3);">
+                <div class="absolute -top-16 -right-16 w-64 h-64 rounded-full bg-white/5 pointer-events-none"></div>
+                <div class="absolute -bottom-20 left-1/2 w-56 h-56 rounded-full bg-white/3 pointer-events-none"></div>
+                <div class="relative z-10 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
+                    <div>
+                        <p class="text-white/50 text-xs font-semibold uppercase tracking-widest mb-1.5">AI Monthly Intelligence Report</p>
+                        <h2 class="text-3xl sm:text-4xl font-extrabold tracking-wide mb-1">AI 月度專題報告</h2>
+                        <p id="monthly-hero-meta" class="text-white/60 text-sm">載入中...</p>
+                    </div>
+                    <div class="w-full sm:w-auto flex-shrink-0">
+                        <select id="monthSelector"
+                                class="w-full sm:w-auto border-0 rounded-xl px-4 py-2.5 text-white font-medium text-sm focus:outline-none focus:ring-2 focus:ring-white/30 backdrop-blur-sm cursor-pointer [&>option]:text-gray-800"
+                                style="background-color:rgba(255,255,255,0.12);">
+                            <option value="">載入中...</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Two-column layout: sidebar + content -->
+            <!-- KEY FIX: sticky + self-start directly on the aside element -->
+            <div class="flex gap-6 items-start pb-20 lg:pb-6">
+
+                <!-- Sticky sidebar (desktop only) -->
+                <aside class="w-52 flex-shrink-0 hidden lg:block sticky top-20 self-start">
+                    <div class="bg-white rounded-2xl card p-4">
+                        <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 px-1">本月目錄</p>
+                        <nav class="space-y-0.5" id="section-nav">
+                            <a href="#m-summary"         class="section-nav-link flex items-center gap-2.5 px-3 py-2 text-sm text-gray-600 rounded-xl hover:bg-slate-50 transition-colors">
+                                <span class="text-base leading-none">📌</span><span>摘要</span>
+                            </a>
+                            <a href="#m-highlights"      class="section-nav-link flex items-center gap-2.5 px-3 py-2 text-sm text-gray-600 rounded-xl hover:bg-slate-50 transition-colors">
+                                <span class="text-base leading-none">🏆</span><span>三大重點</span>
+                            </a>
+                            <a href="#m-themes"          class="section-nav-link flex items-center gap-2.5 px-3 py-2 text-sm text-gray-600 rounded-xl hover:bg-slate-50 transition-colors">
+                                <span class="text-base leading-none">🌐</span><span>產業動態</span>
+                            </a>
+                            <a href="#m-competitors"     class="section-nav-link flex items-center gap-2.5 px-3 py-2 text-sm text-gray-600 rounded-xl hover:bg-slate-50 transition-colors">
+                                <span class="text-base leading-none">🏢</span><span>競業動態</span>
+                            </a>
+                            <a href="#m-recommendations" class="section-nav-link flex items-center gap-2.5 px-3 py-2 text-sm text-gray-600 rounded-xl hover:bg-slate-50 transition-colors">
+                                <span class="text-base leading-none">💡</span><span>行動建議</span>
+                            </a>
+                            <a href="#m-reads"           class="section-nav-link flex items-center gap-2.5 px-3 py-2 text-sm text-gray-600 rounded-xl hover:bg-slate-50 transition-colors">
+                                <span class="text-base leading-none">📎</span><span>深讀推薦</span>
+                            </a>
+                        </nav>
+                    </div>
+                </aside>
+
+                <!-- Monthly content -->
+                <div class="flex-1 min-w-0">
+                    <div id="monthly-content" class="space-y-6">
+                        <div class="text-center py-20 text-gray-400">
+                            <svg class="w-10 h-10 mx-auto mb-3 text-gray-300 animate-spin" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                            </svg>
+                            <p>載入月報資料中...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================
+             趨勢季報
+             ======================================== -->
+        <div id="quarterly-panel" class="hidden">
+
+            <!-- Quarterly hero -->
+            <div class="hero-bg-quarterly text-white p-8 sm:p-10 rounded-2xl mb-6 relative overflow-hidden" style="box-shadow:0 8px 40px rgba(30,20,96,0.3);">
+                <div class="absolute -top-16 -right-16 w-64 h-64 rounded-full bg-white/5 pointer-events-none"></div>
+                <div class="absolute -bottom-20 left-1/2 w-56 h-56 rounded-full bg-white/3 pointer-events-none"></div>
+                <div class="relative z-10 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
+                    <div>
+                        <p class="text-white/50 text-xs font-semibold uppercase tracking-widest mb-1.5">AI Quarterly Trend Report</p>
+                        <h2 class="text-3xl sm:text-4xl font-extrabold tracking-wide mb-1">AI 季度趨勢報告</h2>
+                        <p id="quarterly-hero-meta" class="text-white/60 text-sm">載入中...</p>
+                    </div>
+                    <div class="w-full sm:w-auto flex-shrink-0">
+                        <select id="quarterSelector"
+                                class="w-full sm:w-auto border-0 rounded-xl px-4 py-2.5 text-white font-medium text-sm focus:outline-none focus:ring-2 focus:ring-white/30 backdrop-blur-sm cursor-pointer [&>option]:text-gray-800"
+                                style="background-color:rgba(255,255,255,0.12);">
+                            <option value="">載入中...</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Two-column layout: sidebar + content -->
+            <div class="flex gap-6 items-start pb-20 lg:pb-6">
+
+                <!-- Sticky sidebar (desktop only) -->
+                <aside class="w-52 flex-shrink-0 hidden lg:block sticky top-20 self-start">
+                    <div class="bg-white rounded-2xl card p-4">
+                        <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 px-1">本季目錄</p>
+                        <nav class="space-y-0.5" id="quarter-section-nav">
+                            <a href="#q-summary"         class="q-section-nav-link flex items-center gap-2.5 px-3 py-2 text-sm text-gray-600 rounded-xl hover:bg-slate-50 transition-colors">
+                                <span class="text-base leading-none">📌</span><span>季度綜述</span>
+                            </a>
+                            <a href="#q-timeline"        class="q-section-nav-link flex items-center gap-2.5 px-3 py-2 text-sm text-gray-600 rounded-xl hover:bg-slate-50 transition-colors">
+                                <span class="text-base leading-none">🕒</span><span>時間軸</span>
+                            </a>
+                            <a href="#q-arcs"            class="q-section-nav-link flex items-center gap-2.5 px-3 py-2 text-sm text-gray-600 rounded-xl hover:bg-slate-50 transition-colors">
+                                <span class="text-base leading-none">📈</span><span>趨勢弧線</span>
+                            </a>
+                            <a href="#q-inflections"     class="q-section-nav-link flex items-center gap-2.5 px-3 py-2 text-sm text-gray-600 rounded-xl hover:bg-slate-50 transition-colors">
+                                <span class="text-base leading-none">⚡</span><span>轉折點</span>
+                            </a>
+                            <a href="#q-competitors"     class="q-section-nav-link flex items-center gap-2.5 px-3 py-2 text-sm text-gray-600 rounded-xl hover:bg-slate-50 transition-colors">
+                                <span class="text-base leading-none">🏢</span><span>競業軌跡</span>
+                            </a>
+                            <a href="#q-recommendations" class="q-section-nav-link flex items-center gap-2.5 px-3 py-2 text-sm text-gray-600 rounded-xl hover:bg-slate-50 transition-colors">
+                                <span class="text-base leading-none">💡</span><span>策略重點</span>
+                            </a>
+                            <a href="#q-reads"           class="q-section-nav-link flex items-center gap-2.5 px-3 py-2 text-sm text-gray-600 rounded-xl hover:bg-slate-50 transition-colors">
+                                <span class="text-base leading-none">📎</span><span>深讀推薦</span>
+                            </a>
+                        </nav>
+                    </div>
+                </aside>
+
+                <!-- Quarterly content -->
+                <div class="flex-1 min-w-0">
+                    <div id="quarterly-content" class="space-y-6">
+                        <div class="text-center py-20 text-gray-400">
+                            <svg class="w-10 h-10 mx-auto mb-3 text-gray-300 animate-spin" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                            </svg>
+                            <p>載入季報資料中...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /max-w-7xl -->
+
+    <!-- Footer -->
+    <footer class="hero-bg text-white/50 text-center py-6 text-xs mt-4">
+        <p>元大金控 數位金融事業處 · 內部參考用途</p>
+    </footer>
+
+    <!-- Mobile article nav button (weekly tab only) -->
+    <button id="mobileNavBtn" onclick="toggleMobileNav()" aria-label="文章目錄">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+        <span id="mobileNavIndicator" style="font-size:10px; font-weight:700; line-height:1;"></span>
+    </button>
+    <div id="mobileNavOverlay" onclick="closeMobileNav()"></div>
+    <div id="mobileNavDrawer">
+        <div class="flex justify-center pt-3 pb-1 flex-shrink-0">
+            <div class="w-10 h-1 rounded-full bg-gray-200"></div>
+        </div>
+        <div class="px-5 py-2.5 border-b border-slate-100 flex items-center justify-between flex-shrink-0">
+            <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">本週文章</span>
+            <button onclick="closeMobileNav()" class="p-1 text-gray-400 hover:text-gray-600 transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <div id="mobileNavList" class="overflow-y-auto flex-1 p-3"></div>
+    </div>
+
+    <!-- Monthly bottom nav (mobile only) -->
+    <div id="monthlyBottomNav" class="hidden lg:hidden">
+        <div class="flex items-stretch">
+            <button class="bnav-btn" onclick="scrollToSection('m-summary')">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                摘要
+            </button>
+            <button class="bnav-btn" onclick="scrollToSection('m-highlights')">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
+                重點
+            </button>
+            <button class="bnav-btn" onclick="scrollToSection('m-themes')">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                動態
+            </button>
+            <button class="bnav-btn" onclick="scrollToSection('m-competitors')">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-2 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                競業
+            </button>
+            <button class="bnav-btn" onclick="scrollToSection('m-recommendations')">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                建議
+            </button>
+            <button class="bnav-btn" onclick="scrollToSection('m-reads')">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>
+                深讀
+            </button>
+        </div>
+    </div>
+
+    <!-- Quarterly bottom nav (mobile only) -->
+    <div id="quarterlyBottomNav" class="hidden lg:hidden">
+        <div class="flex items-stretch">
+            <button class="q-bnav-btn bnav-btn" onclick="scrollToSection('q-summary')">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                綜述
+            </button>
+            <button class="q-bnav-btn bnav-btn" onclick="scrollToSection('q-timeline')">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                時間軸
+            </button>
+            <button class="q-bnav-btn bnav-btn" onclick="scrollToSection('q-arcs')">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                弧線
+            </button>
+            <button class="q-bnav-btn bnav-btn" onclick="scrollToSection('q-inflections')">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                轉折
+            </button>
+            <button class="q-bnav-btn bnav-btn" onclick="scrollToSection('q-competitors')">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-2 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                競業
+            </button>
+            <button class="q-bnav-btn bnav-btn" onclick="scrollToSection('q-recommendations')">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                建議
+            </button>
+            <button class="q-bnav-btn bnav-btn" onclick="scrollToSection('q-reads')">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>
+                深讀
+            </button>
+        </div>
+    </div>
+
+    <script>
+    // ======================================================
+    // SHARED
+    // ======================================================
+    document.getElementById('menuToggle').addEventListener('click', () => {
+        document.getElementById('mobileMenu').classList.toggle('hidden');
+    });
+
+    function switchMainTab(tab) {
+        const panels = {
+            weekly:    document.getElementById('weekly-panel'),
+            monthly:   document.getElementById('monthly-panel'),
+            quarterly: document.getElementById('quarterly-panel'),
+        };
+        const btns = {
+            weekly:    document.getElementById('tab-weekly-btn'),
+            monthly:   document.getElementById('tab-monthly-btn'),
+            quarterly: document.getElementById('tab-quarterly-btn'),
+        };
+        const mobileNavBtn = document.getElementById('mobileNavBtn');
+
+        Object.keys(panels).forEach(k => {
+            const active = (k === tab);
+            panels[k].classList.toggle('hidden', !active);
+            btns[k].classList.toggle('bg-white', active);
+            btns[k].classList.toggle('text-blue-900', active);
+            btns[k].classList.toggle('shadow-sm', active);
+            btns[k].classList.toggle('text-white/70', !active);
+        });
+
+        document.getElementById('monthlyBottomNav').classList.toggle('hidden', tab !== 'monthly');
+        document.getElementById('quarterlyBottomNav').classList.toggle('hidden', tab !== 'quarterly');
+
+        if (tab === 'weekly') {
+            if (currentWeekArticles.length > 0) mobileNavBtn.classList.add('visible');
+        } else {
+            mobileNavBtn.classList.remove('visible');
+        }
+
+        if (tab === 'monthly'   && !monthlyInitialized)   initMonthly();
+        if (tab === 'quarterly' && !quarterlyInitialized) initQuarterly();
+    }
+
+    function scrollToSection(id) {
+        const el = document.getElementById(id);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // ======================================================
+    // 週報
+    // ======================================================
+    const URL_SUMMARY  = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTr9-gJY0KJtnHhuqaTVasx85VvgjR3eIBBO-BvjD386spMzBGnhoXiuK4KXmm6Ug1XD69I8gnr6eF0/pub?output=csv';
+    const URL_NEWS     = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTd_5CX7qteXoHpQGPFnn6n3yJUGurkVNP6LJ38_DaLXYhbrpRqC7Ksi8vSV5GHzHbnKhvC6FqvTYLA/pub?output=csv';
+    const URL_ARTICLES = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRqZnYWyOsOMfJUDaQA3STV-TCqisCr-05roCOMlVT8WtR5U3IlbrmJPs1d49t6rRCVE9iZl63aYg-m/pub?output=csv';
+
+    let allData = { summary: [], news: [], articles: [] };
+    let availableDates = [];
+    let currentSearchTerm = '';
+    let currentWeekArticles = [];
+    let currentSelectedDate = '';
+    let currentSelectedArticleIndex = -1;
+
+    const newsSearchInput = document.getElementById('newsSearchInput');
+    const clearSearch     = document.getElementById('clearSearch');
+
+    newsSearchInput.addEventListener('input', (e) => {
+        currentSearchTerm = e.target.value;
+        clearSearch.classList.toggle('hidden', !currentSearchTerm);
+        const summarySection    = document.getElementById('summarySection');
+        const searchResultCount = document.getElementById('searchResultCount');
+
+        if (currentSearchTerm) {
+            summarySection.style.display = 'none';
+            searchResultCount.classList.remove('hidden');
+            const term = currentSearchTerm.toLowerCase();
+            currentWeekArticles = allData.articles.filter(art => {
+                const content = `${art['title']||''} ${art['highlight']||''} ${art['detail_points']||''} ${art['pm_insight']||''}`.toLowerCase();
+                return content.includes(term);
+            });
+            searchResultCount.textContent = `在所有深度文章中找到 ${currentWeekArticles.length} 筆結果`;
+        } else {
+            summarySection.style.display = '';
+            searchResultCount.classList.add('hidden');
+            currentWeekArticles = allData.articles.filter(row => row['日期'] === currentSelectedDate);
+        }
+        currentSelectedArticleIndex = -1;
+        renderWeeklyView();
+    });
+
+    clearSearch.addEventListener('click', () => {
+        newsSearchInput.value = '';
+        newsSearchInput.dispatchEvent(new Event('input'));
+    });
+
+    function fetchCSV(url) {
+        return new Promise((resolve, reject) => {
+            Papa.parse(url, {
+                download: true, header: true, skipEmptyLines: true,
+                complete: r => resolve(r.data),
+                error:    e => { console.error('CSV 讀取錯誤:', e); reject(e); }
+            });
+        });
+    }
+
+    async function initData() {
+        try {
+            if (URL_SUMMARY.includes('YOUR_')) {
+                document.getElementById('summaryText').innerHTML = '<div>need to check google sheet URL</div>';
+                return;
+            }
+            const [summaryData, newsData, articlesData] = await Promise.all([
+                fetchCSV(URL_SUMMARY), fetchCSV(URL_NEWS), fetchCSV(URL_ARTICLES)
+            ]);
+            allData.summary  = summaryData;
+            allData.news     = newsData;
+            allData.articles = articlesData;
+
+            let dateSet = new Set();
+            summaryData.forEach(row => dateSet.add(row['日期']));
+            availableDates = Array.from(dateSet).sort((a, b) => b.localeCompare(a));
+
+            const selector = document.getElementById('weekSelector');
+            selector.innerHTML = '';
+            availableDates.forEach(date => {
+                const opt = document.createElement('option');
+                opt.value = date;
+                const y = date.substring(0,4), m = date.substring(4,6), d = date.substring(6,8);
+                const start = new Date(`${y}-${m}-${d}`);
+                const end   = new Date(start); end.setDate(end.getDate() + 6);
+                const em = String(end.getMonth()+1).padStart(2,'0');
+                const ed = String(end.getDate()).padStart(2,'0');
+                opt.textContent = `${y} 年 ${m} 月 ${d} ~ ${em} 月 ${ed} 日`;
+                selector.appendChild(opt);
+            });
+            selector.addEventListener('change', e => renderPage(e.target.value));
+            if (availableDates.length > 0) renderPage(availableDates[0]);
+            else document.getElementById('summaryText').innerHTML = '<div>need to check the spreadsheet contents/div>';
+        } catch (err) {
+            document.getElementById('summaryText').innerHTML = '<div>need to check the URL and your network connection</div>';
+        }
+    }
+
+    function formatSubtitle(dateStr) {
+        if (!dateStr || dateStr.length < 8) return '洞察·趨勢';
+        return `洞察·趨勢 | ${dateStr.substring(0,4)} 年 ${dateStr.substring(4,6)} 月`;
+    }
+
+    function splitTargets(str) {
+        const results = []; let depth = 0, current = '';
+        for (const ch of str) {
+            if (ch==='（'||ch==='(') { depth++; current+=ch; }
+            else if (ch==='）'||ch===')') { depth--; current+=ch; }
+            else if (depth===0 && /[、,，]/.test(ch)) { const t=current.trim(); if(t) results.push(t); current=''; }
+            else current+=ch;
+        }
+        const t=current.trim(); if(t) results.push(t);
+        return results;
+    }
+
+    function parseImpactField(text) {
+        if (!text) return { description:'', targets:[] };
+        const parts = text.split('標的:');
+        return { description: parts[0].replace(/^說明[:：]\s*/,'').trim(), targets: parts[1] ? splitTargets(parts[1]) : [] };
+    }
+
+    function escapeRegExp(s) { return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
+    function highlightText(text, term) {
+        if (!term||!text) return text||'';
+        return text.replace(new RegExp(`(${escapeRegExp(term)})`,'gi'),'<mark class="bg-yellow-200 rounded px-0.5">$1</mark>');
+    }
+
+    function renderPage(selectedDate) {
+        currentSelectedDate = selectedDate;
+        newsSearchInput.value = ''; currentSearchTerm = '';
+        clearSearch.classList.add('hidden');
+        document.getElementById('searchResultCount').classList.add('hidden');
+        document.getElementById('summarySection').style.display = '';
+        document.getElementById('headerSubtitle').innerText = formatSubtitle(selectedDate);
+
+        const weekSummary = allData.summary.find(r => r['日期']===selectedDate);
+        const summaryEl = document.getElementById('summaryText');
+        if (weekSummary && weekSummary['summary_text']) {
+            summaryEl.innerHTML = weekSummary['summary_text'].split('\n').filter(l=>l.trim()).map(line => {
+                const t = line.trim();
+                return t.startsWith('•')
+                    ? `<div class="flex items-start gap-1.5"><span class="flex-shrink-0 text-orange-500 font-bold mt-0.5">•</span><span>${t.substring(1).trim()}</span></div>`
+                    : `<div>${t}</div>`;
+            }).join('');
+        } else {
+            summaryEl.innerHTML = '<div>本週無總結資料。</div>';
+        }
+
+        currentWeekArticles = allData.articles.filter(r => r['日期']===selectedDate);
+        currentSelectedArticleIndex = -1;
+        renderWeeklyView();
+    }
+
+    function renderWeeklyView() {
+        const count = currentWeekArticles.length;
+        const navListEl    = document.getElementById('weeklyNavList');
+        const mobileListEl = document.getElementById('mobileNavList');
+        const countEl      = document.getElementById('weeklyNavCount');
+        const btn          = document.getElementById('mobileNavBtn');
+
+        if (!count) {
+            const empty = `<p class="text-xs text-gray-400 text-center py-4 px-3">${currentSearchTerm ? '無符合結果' : '本週暫無文章'}</p>`;
+            if (navListEl) navListEl.innerHTML = empty;
+            if (mobileListEl) mobileListEl.innerHTML = empty;
+            if (countEl) countEl.textContent = '';
+            if (btn) btn.classList.remove('visible');
+            document.getElementById('weeklyDetail').innerHTML = `
+                <div class="flex flex-col items-center justify-center text-gray-400 py-20">
+                    <svg class="w-10 h-10 mb-3 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+                    </svg>
+                    <p class="text-sm font-medium">${currentSearchTerm ? `找不到符合「${currentSearchTerm}」的文章` : '本週尚無文章資料'}</p>
+                </div>`;
+            return;
+        }
+
+        const makeItems = (mobile) => currentWeekArticles.map((art, i) => `
+            <button class="weekly-nav-item" data-index="${i}"
+                    onclick="showArticleDetail(${i})${mobile ? '; closeMobileNav()' : ''}">
+                <span class="nav-num">${String(i+1).padStart(2,'0')}</span>
+                <span class="nav-title">${art['title']||''}</span>
+            </button>`).join('');
+
+        if (navListEl)    navListEl.innerHTML    = makeItems(false);
+        if (mobileListEl) mobileListEl.innerHTML = makeItems(true);
+        if (countEl) countEl.textContent = `${count} 篇`;
+        if (btn) btn.classList.add('visible');
+
+        const idx = (currentSelectedArticleIndex >= 0 && currentSelectedArticleIndex < count)
+            ? currentSelectedArticleIndex : 0;
+        showArticleDetail(idx, false);
+    }
+
+    function showArticleDetail(index, scroll = true) {
+        currentSelectedArticleIndex = index;
+
+        // Update nav active states
+        document.querySelectorAll('.weekly-nav-item[data-index]').forEach(el =>
+            el.classList.toggle('active', parseInt(el.dataset.index) === index)
+        );
+
+        // Update mobile indicator
+        const indicator = document.getElementById('mobileNavIndicator');
+        if (indicator) indicator.textContent = `${index + 1}/${currentWeekArticles.length}`;
+
+        const article = currentWeekArticles[index];
+        if (!article) return;
+
+        const total = currentWeekArticles.length;
+        const prevDis = index === 0;
+        const nextDis = index === total - 1;
+        const navRow = `
+            <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
+                <button onclick="showArticleDetail(${index - 1})" ${prevDis ? 'disabled' : ''}
+                    class="flex items-center gap-1 text-xs font-medium px-3 py-1.5 rounded-lg transition-all ${prevDis ? 'text-gray-300 cursor-not-allowed' : 'text-gray-500 hover:bg-slate-100 hover:text-gray-700'}">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                    上一篇
+                </button>
+                <span class="text-xs text-gray-400 font-medium tabular-nums">${index + 1} / ${total}</span>
+                <button onclick="showArticleDetail(${index + 1})" ${nextDis ? 'disabled' : ''}
+                    class="flex items-center gap-1 text-xs font-medium px-3 py-1.5 rounded-lg transition-all ${nextDis ? 'text-gray-300 cursor-not-allowed' : 'text-gray-500 hover:bg-slate-100 hover:text-gray-700'}">
+                    下一篇
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </button>
+            </div>`;
+
+        let rawDate = article['發布日期']||article['日期']||'';
+        if (/^\d{8}$/.test(rawDate)) rawDate = `${rawDate.substring(0,4)}-${rawDate.substring(4,6)}-${rawDate.substring(6,8)}`;
+
+        const hashtagsHtml = article['hashtags']
+            ? article['hashtags'].split(',').map(t=>`<span class="inline-block bg-blue-100 text-blue-700 rounded-full px-3 py-1 text-xs font-semibold">${t.trim()}</span>`).join('')
+            : '';
+
+        const detailPointsHtml = article['detail_points']
+            ? article['detail_points'].split('\n').filter(p=>p.trim()).map(p=>`
+                <li class="flex items-start gap-2.5 text-sm text-gray-700 leading-relaxed">
+                    <svg class="w-4 h-4 text-orange-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    <span>${highlightText(p, currentSearchTerm)}</span>
+                </li>`).join('')
+            : '';
+
+        let yuantaBlock = '';
+        if (article['yuanta_insight']) {
+            const chips = (article['yuanta_entities']||'').split(',').map(s=>s.trim()).filter(Boolean)
+                .map(e=>`<span class="inline-block bg-blue-100 text-blue-700 rounded-full px-3 py-1 text-xs font-semibold">${e}</span>`).join('');
+            const lines = article['yuanta_insight'].split(/\s*／\s*/).filter(Boolean)
+                .map(l=>highlightText(l.replace(/【(.*?)】/g,'<span class="font-bold text-blue-700">【$1】</span>'),currentSearchTerm)).join('<br class="mb-1">');
+            yuantaBlock = `
+                <div class="mb-6 yuanta-block rounded-2xl p-5">
+                    <h3 class="flex items-center text-blue-800 font-bold text-sm mb-3">
+                        <div class="w-6 h-6 bg-blue-500 rounded-lg flex items-center justify-center mr-2 flex-shrink-0 text-xs">🏛️</div>
+                        元大洞察
+                    </h3>
+                    ${chips ? `<div class="flex flex-wrap gap-2 mb-3">${chips}</div>` : ''}
+                    <div class="text-gray-700 text-sm leading-relaxed">${lines}</div>
+                </div>`;
+        }
+
+        const benefited = parseImpactField(article['impact_analysis_benefited']);
+        const damaged   = parseImpactField(article['impact_analysis_damaged']);
+        const renderChips = (targets, cls) => targets.map(t=>`<span class="inline-block bg-white ${cls} rounded-full px-3 py-1 text-xs font-semibold mr-1.5 mb-1.5 shadow-sm">${t}</span>`).join('');
+
+        if (scroll) {
+            const el = document.getElementById('weeklyDetail');
+            const top = el.getBoundingClientRect().top + window.scrollY - 80;
+            window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+        }
+
+        document.getElementById('weeklyDetail').innerHTML = `
+            <div>
+                ${navRow}
+                <h2 class="text-xl font-bold text-gray-900 mb-2 leading-tight">${highlightText(article['title'],currentSearchTerm)}</h2>
+                ${rawDate ? `<div class="flex items-center text-sm text-gray-400 mb-4 gap-1.5">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    發布日期：${rawDate}</div>` : ''}
+                ${hashtagsHtml ? `<div class="mb-5 flex flex-wrap gap-2">${hashtagsHtml}</div>` : ''}
+
+                <div class="mb-5 pb-5 border-b border-gray-100">
+                    <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2.5">重點速報</h3>
+                    <div class="text-gray-700 text-sm leading-relaxed">${highlightText(article['highlight']||'',currentSearchTerm)}</div>
+                </div>
+
+                <div class="mb-5 pb-5 border-b border-gray-100">
+                    <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2.5">關鍵細節</h3>
+                    <ul class="space-y-2.5">${detailPointsHtml}</ul>
+                </div>
+
+                <div class="mb-6 insight-block rounded-2xl p-5">
+                    <h3 class="flex items-center text-orange-800 font-bold text-sm mb-2">
+                        <div class="w-6 h-6 bg-orange-500 rounded-lg flex items-center justify-center mr-2 flex-shrink-0 text-xs">💡</div>
+                        關鍵洞察
+                    </h3>
+                    <div class="text-gray-700 text-sm leading-relaxed">${highlightText(article['pm_insight']||'',currentSearchTerm)}</div>
+                </div>
+
+                ${yuantaBlock}
+
+                <div class="mb-6">
+                    <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">產業連動與標的</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div class="bg-green-50 rounded-2xl p-4">
+                            <h4 class="flex items-center text-sm font-bold text-green-800 mb-2">
+                                <div class="w-5 h-5 bg-green-500 rounded-lg flex items-center justify-center mr-2 flex-shrink-0">
+                                    <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                                </div>受惠分析
+                            </h4>
+                            <p class="text-sm text-green-900 mb-3 leading-relaxed">${benefited.description}</p>
+                            ${benefited.targets.length ? `<div class="flex flex-wrap items-center"><span class="text-xs text-green-700 font-bold mr-2">標的</span>${renderChips(benefited.targets,'text-green-700 border border-green-200')}</div>` : ''}
+                        </div>
+                        <div class="bg-red-50 rounded-2xl p-4">
+                            <h4 class="flex items-center text-sm font-bold text-red-800 mb-2">
+                                <div class="w-5 h-5 bg-red-500 rounded-lg flex items-center justify-center mr-2 flex-shrink-0">
+                                    <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+                                </div>受損分析
+                            </h4>
+                            <p class="text-sm text-red-900 mb-3 leading-relaxed">${damaged.description}</p>
+                            ${damaged.targets.length ? `<div class="flex flex-wrap items-center"><span class="text-xs text-red-700 font-bold mr-2">標的</span>${renderChips(damaged.targets,'text-red-700 border border-red-200')}</div>` : ''}
+                        </div>
+                    </div>
+                </div>
+
+                ${article['url'] ? `
+                <div class="text-right pt-4 border-t border-gray-100">
+                    <a href="${article['url']}" target="_blank"
+                       class="inline-flex items-center gap-1.5 border border-gray-200 text-gray-600 hover:text-blue-700 hover:border-blue-400 hover:bg-blue-50 px-5 py-2.5 rounded-xl text-sm font-medium transition-all">
+                        閱讀原始文章
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                    </a>
+                </div>` : ''}
+            </div>`;
+
+    }
+
+    function toggleMobileNav() {
+        const overlay = document.getElementById('mobileNavOverlay');
+        const drawer  = document.getElementById('mobileNavDrawer');
+        if (drawer.classList.contains('open')) {
+            closeMobileNav();
+        } else {
+            overlay.classList.add('open');
+            drawer.classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+    }
+
+    function closeMobileNav() {
+        document.getElementById('mobileNavOverlay').classList.remove('open');
+        document.getElementById('mobileNavDrawer').classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
+    // ======================================================
+    // 月報
+    // ======================================================
+    const MONTHLY_SHEET_ID = '1Mb4vVTnxvjQGJyrc8maawGj5Y90SbPfRP0-gMQR9di8';
+
+    function getMonthlyUrl(sheetName) {
+        return `https://docs.google.com/spreadsheets/d/${MONTHLY_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
+    }
+
+    let monthlyDataCache   = {};
+    let loadedMonths       = [];
+    let currentMonth       = '';
+    let monthlyInitialized = false;
+
+    async function initMonthly() {
+        monthlyInitialized = true;
+        if (MONTHLY_SHEET_ID === 'YOUR_MONTHLY_SHEET_ID') {
+            document.getElementById('monthly-content').innerHTML =
+                '<div class="text-center py-20 text-gray-400">need to check MONTHLY_SHEET_ID</div>';
+            return;
+        }
+        try {
+            const [summaryData, highlightsData, themesData, competitorsData, recsData, readsData] = await Promise.all([
+                fetchCSV(getMonthlyUrl('monthly_summary')),
+                fetchCSV(getMonthlyUrl('monthly_highlights')),
+                fetchCSV(getMonthlyUrl('monthly_themes')),
+                fetchCSV(getMonthlyUrl('monthly_competitors')),
+                fetchCSV(getMonthlyUrl('monthly_recommendations')),
+                fetchCSV(getMonthlyUrl('monthly_reads')),
+            ]);
+
+            const monthSet = new Set(summaryData.map(r => r.month).filter(Boolean));
+            loadedMonths = Array.from(monthSet).sort((a, b) => b.localeCompare(a));
+
+            loadedMonths.forEach(month => {
+                const summary    = summaryData.find(r => r.month === month) || {};
+                const highlights = highlightsData.filter(r=>r.month===month).sort((a,b)=>parseInt(a.rank)-parseInt(b.rank)).map(r=>({ rank:parseInt(r.rank), title:r.title, explanation:r.explanation }));
+                const themes     = themesData.filter(r=>r.month===month).map(r=>({ theme:r.theme, content:r.content, yuanta_implication:r.yuanta_implication }));
+                const twComps    = competitorsData.filter(r=>r.month===month&&r.type==='台灣').map(r=>({ institution:r.institution, action:r.action, yuanta_implication:r.implication }));
+                const intlComps  = competitorsData.filter(r=>r.month===month&&r.type==='國際').map(r=>({ institution:r.institution, action:r.action, trend_implication:r.implication }));
+                const recsByUnit = {};
+                recsData.filter(r=>r.month===month).forEach(r=>{ if(!recsByUnit[r.business_unit]) recsByUnit[r.business_unit]=[]; recsByUnit[r.business_unit].push({ action:r.action, rationale:r.rationale }); });
+                const reads = readsData.filter(r=>r.month===month).sort((a,b)=>parseInt(a.rank)-parseInt(b.rank)).map(r=>({ rank:parseInt(r.rank), title:r.title, date:r.date, source:r.source, reason:r.reason, url:r.url }));
+
+                monthlyDataCache[month] = {
+                    month,
+                    date_range: summary.date_range || '',
+                    data_sources: { ai_articles_total: parseInt(summary.ai_articles_total)||0, finance_articles_total: parseInt(summary.finance_articles_total)||0 },
+                    executive_summary:      { summary_text: summary.summary_text || '' },
+                    top_highlights:         highlights,
+                    industry_themes:        themes,
+                    competitor_dynamics:    { taiwan: twComps, international: intlComps },
+                    yuanta_recommendations: recsByUnit,
+                    recommended_reads:      reads,
+                };
+            });
+
+            renderMonthSelector();
+            if (loadedMonths.length > 0) switchMonth(loadedMonths[0]);
+            else document.getElementById('monthly-content').innerHTML =
+                '<div class="text-center py-20 text-gray-400">need to check monthly report contents</div>';
+        } catch (err) {
+            console.error('月報讀取失敗:', err);
+            document.getElementById('monthly-content').innerHTML =
+                '<div class="text-center py-20 text-gray-400">ensure the google sheet is public</div>';
+        }
+    }
+
+    function renderMonthSelector() {
+        const sel = document.getElementById('monthSelector');
+        sel.innerHTML = loadedMonths.map(yyyymm => {
+            const y = yyyymm.substring(0,4), m = yyyymm.substring(4,6);
+            return `<option value="${yyyymm}">${y} 年 ${m} 月</option>`;
+        }).join('');
+        sel.addEventListener('change', e => switchMonth(e.target.value));
+    }
+
+    function switchMonth(yyyymm) {
+        currentMonth = yyyymm;
+        const sel = document.getElementById('monthSelector');
+        if (sel) sel.value = yyyymm;
+        const data = monthlyDataCache[yyyymm];
+        if (!data) return;
+        renderMonthlyHero(data);
+        renderMonthlyReport(data);
+    }
+
+    function renderMonthlyHero(data) {
+        const y = data.month.substring(0,4), m = data.month.substring(4,6);
+        const dr = (data.date_range||'').replace('-',' ~ ');
+        const aiCount  = data.data_sources?.ai_articles_total || 0;
+        const finCount = data.data_sources?.finance_articles_total || 0;
+        document.getElementById('monthly-hero-meta').textContent =
+            `${y} 年 ${m} 月${dr ? ' · ' + dr : ''} · AI 文章 ${aiCount} 篇 / 金融 ${finCount} 篇`;
+    }
+
+    function fmtSummary(text) {
+        if (!text) return '';
+        return text.split('\n').filter(l=>l.trim()).map(line => {
+            const t = line.trim();
+            return t.startsWith('•')
+                ? `<div class="flex items-start gap-2"><span class="flex-shrink-0 text-orange-500 font-bold">•</span><span>${t.substring(1).trim()}</span></div>`
+                : `<div>${t}</div>`;
+        }).join('');
+    }
+
+    function updateBottomNavActive(sectionId) {
+        const map = { 'm-summary':0, 'm-highlights':1, 'm-themes':2, 'm-competitors':3, 'm-recommendations':4, 'm-reads':5 };
+        document.querySelectorAll('.bnav-btn').forEach((b,i) => b.classList.toggle('active', i === (map[sectionId] ?? -1)));
+    }
+
+    function renderMonthlyReport(data) {
+        const SM = 'scroll-mt-24';
+        const highlightColors = [
+            { border:'border-blue-500',   bg:'bg-blue-50',   circle:'bg-blue-500 text-white',   num:'text-blue-700' },
+            { border:'border-indigo-500', bg:'bg-indigo-50', circle:'bg-indigo-500 text-white', num:'text-indigo-700' },
+            { border:'border-amber-500',  bg:'bg-amber-50',  circle:'bg-amber-500 text-white',  num:'text-amber-700' },
+        ];
+        const deptColors = [
+            'border-blue-500','border-indigo-500','border-cyan-500','border-teal-500',
+            'border-emerald-500','border-violet-500','border-rose-500','border-amber-500',
+            'border-slate-500','border-lime-500'
+        ];
+        const twData   = data.competitor_dynamics?.taiwan || [];
+        const intlData = data.competitor_dynamics?.international || [];
+        const recData  = data.yuanta_recommendations || {};
+        const depts    = Object.keys(recData);
+
+        const html = `
+            <!-- Summary -->
+            <div id="m-summary" class="${SM} bg-white rounded-2xl card overflow-hidden" style="border-top:4px solid #f97316;">
+                <div class="p-6 sm:p-8">
+                    <h3 class="text-lg font-bold text-blue-900 mb-4 flex items-center gap-2.5">
+                        <span class="w-8 h-8 rounded-xl bg-orange-100 flex items-center justify-center text-base flex-shrink-0">📌</span>
+                        本月趨勢摘要
+                    </h3>
+                    <div class="text-gray-700 leading-relaxed space-y-2 text-sm">${fmtSummary(data.executive_summary?.summary_text||'')}</div>
+                </div>
+            </div>
+
+            <!-- Highlights -->
+            <div id="m-highlights" class="${SM}">
+                <h3 class="text-lg font-bold text-blue-900 mb-4 flex items-center gap-2.5">
+                    <span class="w-8 h-8 rounded-xl bg-yellow-100 flex items-center justify-center text-base flex-shrink-0">🏆</span>
+                    三大重點
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    ${(data.top_highlights||[]).map((h,i) => {
+                        const c = highlightColors[i]||highlightColors[0];
+                        return `<div class="bg-white rounded-2xl card border-t-4 ${c.border} p-5 flex flex-col gap-3">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-xl ${c.circle} flex items-center justify-center font-extrabold text-lg flex-shrink-0 shadow-sm">${h.rank}</div>
+                                <h4 class="font-bold text-gray-800 text-sm leading-snug">${h.title}</h4>
+                            </div>
+                            <p class="text-gray-600 text-sm leading-relaxed">${h.explanation}</p>
+                        </div>`;
+                    }).join('')}
+                </div>
+            </div>
+
+            <!-- Themes -->
+            <div id="m-themes" class="${SM}">
+                <h3 class="text-lg font-bold text-blue-900 mb-4 flex items-center gap-2.5">
+                    <span class="w-8 h-8 rounded-xl bg-blue-100 flex items-center justify-center text-base flex-shrink-0">🌐</span>
+                    AI 產業動態
+                </h3>
+                <div class="space-y-2.5">
+                    ${(data.industry_themes||[]).map((theme,i) => `
+                        <details class="bg-white rounded-2xl card group" ${i===0?'open':''}>
+                            <summary class="flex items-center justify-between p-5 cursor-pointer hover:bg-slate-50/80 rounded-2xl transition-colors">
+                                <span class="font-semibold text-gray-800 pr-4 text-sm">${theme.theme}</span>
+                                <svg class="details-chevron w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </summary>
+                            <div class="px-5 pb-5 space-y-3 border-t border-slate-100 pt-4">
+                                <p class="text-gray-600 text-sm leading-relaxed">${theme.content}</p>
+                                ${theme.yuanta_implication ? `
+                                <div class="bg-blue-50 rounded-xl p-4 border-l-4 border-blue-400">
+                                    <p class="text-xs font-bold text-blue-600 mb-1 uppercase tracking-wider">對我們的參考意涵</p>
+                                    <p class="text-sm text-blue-800 leading-relaxed">${theme.yuanta_implication}</p>
+                                </div>` : ''}
+                            </div>
+                        </details>`).join('')}
+                </div>
+            </div>
+
+            <!-- Competitors -->
+            <div id="m-competitors" class="${SM}">
+                <h3 class="text-lg font-bold text-blue-900 mb-4 flex items-center gap-2.5">
+                    <span class="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center text-base flex-shrink-0">🏢</span>
+                    競業動態
+                </h3>
+                <div class="bg-white rounded-2xl card overflow-hidden">
+                    <div class="flex border-b border-gray-100 bg-slate-50/60 px-2 pt-2 gap-1">
+                        <button onclick="switchCompTab('tw',this)" id="comp-tab-tw"
+                                class="comp-tab-btn px-5 py-2.5 text-sm font-semibold rounded-t-xl border-b-2 border-blue-600 text-blue-700 bg-white transition-all -mb-px">台灣金融機構</button>
+                        <button onclick="switchCompTab('intl',this)" id="comp-tab-intl"
+                                class="comp-tab-btn px-5 py-2.5 text-sm font-semibold rounded-t-xl border-b-2 border-transparent text-gray-500 hover:text-gray-700 transition-all -mb-px">國際動態</button>
+                    </div>
+                    <div id="comp-panel-tw" class="comp-tab-panel active overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead><tr class="text-left bg-slate-50/40">
+                                <th class="px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider w-1/5">機構</th>
+                                <th class="px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider w-2/5">本月動態</th>
+                                <th class="px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">值得參考的觀察</th>
+                            </tr></thead>
+                            <tbody>${twData.map((c,i)=>`
+                                <tr class="${i%2===0?'':'bg-slate-50/40'} hover:bg-blue-50/30 transition-colors">
+                                    <td class="px-5 py-4 font-semibold text-gray-800 align-top text-sm">${c.institution}</td>
+                                    <td class="px-5 py-4 text-gray-600 align-top leading-relaxed text-sm">${c.action}</td>
+                                    <td class="px-5 py-4 text-gray-600 align-top leading-relaxed text-sm">${c.yuanta_implication||''}</td>
+                                </tr>`).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="comp-panel-intl" class="comp-tab-panel overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead><tr class="text-left bg-slate-50/40">
+                                <th class="px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider w-1/5">機構</th>
+                                <th class="px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider w-2/5">本月動態</th>
+                                <th class="px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">趨勢參考</th>
+                            </tr></thead>
+                            <tbody>${intlData.map((c,i)=>`
+                                <tr class="${i%2===0?'':'bg-slate-50/40'} hover:bg-blue-50/30 transition-colors">
+                                    <td class="px-5 py-4 font-semibold text-gray-800 align-top text-sm">${c.institution}</td>
+                                    <td class="px-5 py-4 text-gray-600 align-top leading-relaxed text-sm">${c.action}</td>
+                                    <td class="px-5 py-4 text-gray-600 align-top leading-relaxed text-sm">${c.trend_implication||''}</td>
+                                </tr>`).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recommendations -->
+            <div id="m-recommendations" class="${SM}">
+                <h3 class="text-lg font-bold text-blue-900 mb-4 flex items-center gap-2.5">
+                    <span class="w-8 h-8 rounded-xl bg-orange-100 flex items-center justify-center text-base flex-shrink-0">💡</span>
+                    行動建議
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    ${depts.map((dept,i) => {
+                        const actions = recData[dept]||[];
+                        return `<div class="bg-white rounded-2xl card border-t-4 ${deptColors[i%deptColors.length]} p-5">
+                            <h4 class="font-bold text-gray-800 mb-3.5 text-sm">${dept}</h4>
+                            <ul class="space-y-3">${actions.map(a=>`
+                                <li class="flex items-start gap-2.5 text-sm">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-orange-400 mt-2 flex-shrink-0"></span>
+                                    <div>
+                                        <span class="font-medium text-gray-700">${a.action}</span>
+                                        ${a.rationale?`<p class="text-gray-500 text-xs mt-1 leading-relaxed">${a.rationale}</p>`:''}
+                                    </div>
+                                </li>`).join('')}
+                            </ul>
+                        </div>`;
+                    }).join('')}
+                </div>
+            </div>
+
+            <!-- Reads -->
+            <div id="m-reads" class="${SM} pb-4">
+                <h3 class="text-lg font-bold text-blue-900 mb-4 flex items-center gap-2.5">
+                    <span class="w-8 h-8 rounded-xl bg-purple-100 flex items-center justify-center text-base flex-shrink-0">📎</span>
+                    深讀推薦
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    ${(data.recommended_reads||[]).map(r=>`
+                        <div class="bg-white rounded-2xl card border border-transparent hover:border-blue-200 p-5 flex flex-col gap-3 transition-all card-hover" style="border-color:#f1f5f9;">
+                            <div class="flex items-center justify-between">
+                                <span class="w-7 h-7 rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 text-white flex items-center justify-center text-sm font-bold flex-shrink-0 shadow-sm">${r.rank}</span>
+                                <span class="text-xs text-gray-400">${r.date} · ${r.source}</span>
+                            </div>
+                            <h4 class="font-semibold text-gray-800 text-sm leading-snug flex-1">${r.title}</h4>
+                            <p class="text-xs text-gray-500 leading-relaxed">${r.reason}</p>
+                            ${r.url?`<a href="${r.url}" target="_blank" rel="noopener"
+                                class="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-800 transition-colors mt-auto">
+                                閱讀原文
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                            </a>`:''}
+                        </div>`).join('')}
+                </div>
+            </div>`;
+
+        document.getElementById('monthly-content').innerHTML = html;
+        setupSectionNavObserver();
+        updateBottomNavActive('m-summary');
+    }
+
+    function switchCompTab(type, btn) {
+        document.querySelectorAll('.comp-tab-panel').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.comp-tab-btn').forEach(b => {
+            b.classList.remove('border-blue-600','text-blue-700','bg-white');
+            b.classList.add('border-transparent','text-gray-500');
+        });
+        document.getElementById(`comp-panel-${type}`).classList.add('active');
+        btn.classList.add('border-blue-600','text-blue-700','bg-white');
+        btn.classList.remove('border-transparent','text-gray-500');
+    }
+
+    function setupSectionNavObserver() {
+        const sections = ['m-summary','m-highlights','m-themes','m-competitors','m-recommendations','m-reads'];
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const id = entry.target.id;
+                    document.querySelectorAll('.section-nav-link').forEach(link =>
+                        link.classList.toggle('active', link.getAttribute('href') === `#${id}`)
+                    );
+                    updateBottomNavActive(id);
+                }
+            });
+        }, { rootMargin: '-15% 0px -65% 0px' });
+        sections.forEach(id => { const el = document.getElementById(id); if (el) observer.observe(el); });
+    }
+
+    // ======================================================
+    // 季報
+    // ======================================================
+    const QUARTERLY_SHEET_ID = '17_4dhtt9HFBYtW7Bvzwpp9VZkvsasGe1kxx7csCp4ow';  // 季報 Google Spreadsheet ID
+    // 季報發布連結（CSV）：https://docs.google.com/spreadsheets/d/e/2PACX-1vQUhfDoenKfiUbHaphiDAXY1AHmrctm_zyg5SrjQD1KjEOda-FAejHrVbxzRWlBQdZO5VbjDV8bOnGn/pub?output=csv
+
+    function getQuarterlyUrl(sheetName) {
+        return `https://docs.google.com/spreadsheets/d/${QUARTERLY_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
+    }
+
+    let quarterlyDataCache   = {};
+    let loadedQuarters       = [];
+    let currentQuarter       = '';
+    let quarterlyInitialized = false;
+
+    function qMonthLabel(m) { return `${parseInt(m.substring(4,6),10)} 月`; }
+
+    async function initQuarterly() {
+        quarterlyInitialized = true;
+        if (!QUARTERLY_SHEET_ID) {
+            document.getElementById('quarterly-content').innerHTML =
+                '<div class="text-center py-20 text-gray-400">尚未設定 QUARTERLY_SHEET_ID，請於 index.html 填入季報試算表 ID</div>';
+            return;
+        }
+        try {
+            const [summaryData, timelineData, arcsData, inflData, compData, recsData, readsData] = await Promise.all([
+                fetchCSV(getQuarterlyUrl('quarterly_summary')),
+                fetchCSV(getQuarterlyUrl('quarterly_timeline')),
+                fetchCSV(getQuarterlyUrl('quarterly_arcs')),
+                fetchCSV(getQuarterlyUrl('quarterly_inflections')),
+                fetchCSV(getQuarterlyUrl('quarterly_competitors')),
+                fetchCSV(getQuarterlyUrl('quarterly_recommendations')),
+                fetchCSV(getQuarterlyUrl('quarterly_reads')),
+            ]);
+
+            const qSet = new Set(summaryData.map(r => r.quarter).filter(Boolean));
+            loadedQuarters = Array.from(qSet).sort((a, b) => b.localeCompare(a));
+
+            loadedQuarters.forEach(q => {
+                const summary  = summaryData.find(r => r.quarter === q) || {};
+                const timeline = timelineData.filter(r=>r.quarter===q)
+                    .map(r=>({ month:r.month, label:r.label, headline:r.headline, key_events:(r.key_events||'').split('|').filter(Boolean), momentum:r.momentum }))
+                    .sort((a,b)=>a.month.localeCompare(b.month));
+                const arcs     = arcsData.filter(r=>r.quarter===q).map(r=>({ theme:r.theme, trajectory:r.trajectory, q_start_state:r.q_start_state, q_end_state:r.q_end_state, evidence:r.evidence, yuanta_implication:r.yuanta_implication }));
+                const inflections = inflData.filter(r=>r.quarter===q).map(r=>({ date:r.date, event:r.event, why_it_matters:r.why_it_matters }));
+                const twComps   = compData.filter(r=>r.quarter===q&&r.type==='台灣').map(r=>({ institution:r.institution, quarter_moves:(r.quarter_moves||'').split('|').filter(Boolean), trajectory_summary:r.trajectory_summary }));
+                const intlComps = compData.filter(r=>r.quarter===q&&r.type==='國際').map(r=>({ institution:r.institution, quarter_moves:(r.quarter_moves||'').split('|').filter(Boolean), trajectory_summary:r.trajectory_summary }));
+                const recsByUnit = {};
+                recsData.filter(r=>r.quarter===q).forEach(r=>{ if(!recsByUnit[r.business_unit]) recsByUnit[r.business_unit]=[]; recsByUnit[r.business_unit].push({ action:r.action, rationale:r.rationale }); });
+                const reads = readsData.filter(r=>r.quarter===q).sort((a,b)=>parseInt(a.rank)-parseInt(b.rank)).map(r=>({ rank:parseInt(r.rank), title:r.title, date:r.date, source:r.source, reason:r.reason, url:r.url }));
+
+                quarterlyDataCache[q] = {
+                    quarter: q,
+                    date_range: summary.date_range || '',
+                    data_sources: { ai_articles_total: parseInt(summary.ai_articles_total)||0, finance_articles_total: parseInt(summary.finance_articles_total)||0 },
+                    executive_summary:      { summary_text: summary.summary_text || '' },
+                    timeline,
+                    trend_arcs:             arcs,
+                    inflection_points:      inflections,
+                    competitor_trajectory: { taiwan: twComps, international: intlComps },
+                    yuanta_recommendations: recsByUnit,
+                    recommended_reads:      reads,
+                };
+            });
+
+            renderQuarterSelector();
+            if (loadedQuarters.length > 0) switchQuarter(loadedQuarters[0]);
+            else document.getElementById('quarterly-content').innerHTML =
+                '<div class="text-center py-20 text-gray-400">尚無季報資料</div>';
+        } catch (err) {
+            console.error('季報讀取失敗:', err);
+            document.getElementById('quarterly-content').innerHTML =
+                '<div class="text-center py-20 text-gray-400">季報讀取失敗，請確認 Google Sheet 已公開</div>';
+        }
+    }
+
+    function renderQuarterSelector() {
+        const sel = document.getElementById('quarterSelector');
+        sel.innerHTML = loadedQuarters.map(q => {
+            const y = q.substring(0,4), qn = q.substring(5);
+            return `<option value="${q}">${y} 年 第 ${qn} 季</option>`;
+        }).join('');
+        sel.addEventListener('change', e => switchQuarter(e.target.value));
+    }
+
+    function switchQuarter(q) {
+        currentQuarter = q;
+        const sel = document.getElementById('quarterSelector');
+        if (sel) sel.value = q;
+        const data = quarterlyDataCache[q];
+        if (!data) return;
+        renderQuarterlyHero(data);
+        renderQuarterlyReport(data);
+    }
+
+    function renderQuarterlyHero(data) {
+        const y = data.quarter.substring(0,4), qn = data.quarter.substring(5);
+        const dr = (data.date_range||'').replace('-',' ~ ');
+        const aiCount  = data.data_sources?.ai_articles_total || 0;
+        const finCount = data.data_sources?.finance_articles_total || 0;
+        document.getElementById('quarterly-hero-meta').textContent =
+            `${y} 年 第 ${qn} 季${dr ? ' · ' + dr : ''} · AI 文章 ${aiCount} 篇 / 金融 ${finCount} 篇`;
+    }
+
+    function updateQuarterBottomNavActive(sectionId) {
+        const map = { 'q-summary':0, 'q-timeline':1, 'q-arcs':2, 'q-inflections':3, 'q-competitors':4, 'q-recommendations':5, 'q-reads':6 };
+        document.querySelectorAll('.q-bnav-btn').forEach((b,i) => b.classList.toggle('active', i === (map[sectionId] ?? -1)));
+    }
+
+    function renderQuarterlyReport(data) {
+        const SM = 'scroll-mt-24';
+        const trajStyle = {
+            '上升': { icon:'↑', badge:'text-emerald-700 bg-emerald-50 border-emerald-200', bar:'border-emerald-500' },
+            '持平': { icon:'→', badge:'text-amber-700 bg-amber-50 border-amber-200',       bar:'border-amber-400' },
+            '降溫': { icon:'↓', badge:'text-rose-700 bg-rose-50 border-rose-200',           bar:'border-rose-500' },
+        };
+        const deptColors = [
+            'border-blue-500','border-indigo-500','border-cyan-500','border-teal-500',
+            'border-emerald-500','border-violet-500','border-rose-500','border-amber-500',
+            'border-slate-500','border-lime-500'
+        ];
+        const twData   = data.competitor_trajectory?.taiwan || [];
+        const intlData = data.competitor_trajectory?.international || [];
+        const recData  = data.yuanta_recommendations || {};
+        const depts    = Object.keys(recData);
+
+        const movesHtml = (moves) => (moves||[]).map(m => `
+            <li class="flex items-start gap-2 text-sm text-gray-600">
+                <span class="w-1.5 h-1.5 rounded-full bg-blue-400 mt-1.5 flex-shrink-0"></span><span>${m}</span>
+            </li>`).join('');
+
+        const compTable = (rows) => `
+            <table class="w-full text-sm">
+                <thead><tr class="text-left bg-slate-50/40">
+                    <th class="px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider w-1/5">機構</th>
+                    <th class="px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider w-3/5">整季動作軌跡</th>
+                    <th class="px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">整季走向</th>
+                </tr></thead>
+                <tbody>${rows.map((c,i)=>`
+                    <tr class="${i%2===0?'':'bg-slate-50/40'} hover:bg-blue-50/30 transition-colors">
+                        <td class="px-5 py-4 font-semibold text-gray-800 align-top text-sm">${c.institution}</td>
+                        <td class="px-5 py-4 align-top"><ul class="space-y-1.5">${movesHtml(c.quarter_moves)}</ul></td>
+                        <td class="px-5 py-4 text-gray-600 align-top leading-relaxed text-sm">${c.trajectory_summary||''}</td>
+                    </tr>`).join('')}
+                </tbody>
+            </table>`;
+
+        const html = `
+            <!-- Summary -->
+            <div id="q-summary" class="${SM} bg-white rounded-2xl card overflow-hidden" style="border-top:4px solid #f97316;">
+                <div class="p-6 sm:p-8">
+                    <h3 class="text-lg font-bold text-blue-900 mb-4 flex items-center gap-2.5">
+                        <span class="w-8 h-8 rounded-xl bg-orange-100 flex items-center justify-center text-base flex-shrink-0">📌</span>
+                        本季趨勢綜述
+                    </h3>
+                    <div class="text-gray-700 leading-relaxed space-y-2 text-sm">${fmtSummary(data.executive_summary?.summary_text||'')}</div>
+                </div>
+            </div>
+
+            <!-- Timeline (招牌) -->
+            <div id="q-timeline" class="${SM}">
+                <h3 class="text-lg font-bold text-blue-900 mb-4 flex items-center gap-2.5">
+                    <span class="w-8 h-8 rounded-xl bg-blue-100 flex items-center justify-center text-base flex-shrink-0">🕒</span>
+                    季度時間軸
+                </h3>
+                <div class="relative pl-7">
+                    <div class="q-timeline-spine absolute left-2.5 top-3 bottom-3 w-0.5 rounded-full"></div>
+                    ${(data.timeline||[]).map(t => `
+                        <div class="relative mb-5 last:mb-0">
+                            <div class="absolute -left-[19px] top-2 w-4 h-4 rounded-full bg-white border-[3px] border-indigo-500 shadow-sm"></div>
+                            <div class="bg-white rounded-2xl card p-5">
+                                <div class="flex items-center flex-wrap gap-2 mb-2.5">
+                                    <span class="text-xs font-bold text-blue-700 bg-blue-50 rounded-full px-2.5 py-0.5">${qMonthLabel(t.month)}</span>
+                                    ${t.label?`<span class="text-xs font-semibold text-white bg-gradient-to-r from-indigo-500 to-blue-500 rounded-full px-2.5 py-0.5">${t.label}</span>`:''}
+                                    ${t.momentum?`<span class="text-xs text-gray-400 ml-auto">動能：${t.momentum}</span>`:''}
+                                </div>
+                                <h4 class="font-bold text-gray-800 text-sm mb-3 leading-snug">${t.headline||''}</h4>
+                                <ul class="space-y-1.5">${(t.key_events||[]).map(e=>`
+                                    <li class="flex items-start gap-2 text-sm text-gray-600">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-orange-400 mt-1.5 flex-shrink-0"></span><span>${e}</span>
+                                    </li>`).join('')}
+                                </ul>
+                            </div>
+                        </div>`).join('')}
+                </div>
+            </div>
+
+            <!-- Trend arcs -->
+            <div id="q-arcs" class="${SM}">
+                <h3 class="text-lg font-bold text-blue-900 mb-4 flex items-center gap-2.5">
+                    <span class="w-8 h-8 rounded-xl bg-indigo-100 flex items-center justify-center text-base flex-shrink-0">📈</span>
+                    主題趨勢弧線
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    ${(data.trend_arcs||[]).map(a => {
+                        const s = trajStyle[a.trajectory] || trajStyle['持平'];
+                        return `<div class="bg-white rounded-2xl card border-l-4 ${s.bar} p-5 flex flex-col gap-3">
+                            <div class="flex items-center justify-between gap-2">
+                                <h4 class="font-bold text-gray-800 text-sm leading-snug">${a.theme}</h4>
+                                <span class="flex-shrink-0 text-xs font-bold border rounded-full px-2.5 py-0.5 ${s.badge}">${s.icon} ${a.trajectory}</span>
+                            </div>
+                            <div class="flex items-center gap-2 text-xs text-gray-500">
+                                <span class="bg-slate-50 rounded-lg px-2 py-1 flex-1">${a.q_start_state||''}</span>
+                                <span class="text-gray-300">→</span>
+                                <span class="bg-slate-50 rounded-lg px-2 py-1 flex-1">${a.q_end_state||''}</span>
+                            </div>
+                            ${a.evidence?`<p class="text-gray-600 text-sm leading-relaxed">${a.evidence}</p>`:''}
+                            ${a.yuanta_implication?`
+                            <div class="bg-blue-50 rounded-xl p-3.5 border-l-4 border-blue-400 mt-auto">
+                                <p class="text-xs font-bold text-blue-600 mb-1 uppercase tracking-wider">對我們的參考意涵</p>
+                                <p class="text-sm text-blue-800 leading-relaxed">${a.yuanta_implication}</p>
+                            </div>`:''}
+                        </div>`;
+                    }).join('')}
+                </div>
+            </div>
+
+            <!-- Inflection points -->
+            <div id="q-inflections" class="${SM}">
+                <h3 class="text-lg font-bold text-blue-900 mb-4 flex items-center gap-2.5">
+                    <span class="w-8 h-8 rounded-xl bg-amber-100 flex items-center justify-center text-base flex-shrink-0">⚡</span>
+                    季度轉折點
+                </h3>
+                <div class="space-y-2.5">
+                    ${(data.inflection_points||[]).map(p => `
+                        <div class="bg-white rounded-2xl card p-5 flex items-start gap-4">
+                            <div class="flex-shrink-0 flex flex-col items-center">
+                                <span class="w-9 h-9 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center text-lg">⚡</span>
+                            </div>
+                            <div class="min-w-0">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="text-xs font-semibold text-amber-700 bg-amber-50 rounded-full px-2.5 py-0.5">${p.date||''}</span>
+                                    <h4 class="font-bold text-gray-800 text-sm">${p.event||''}</h4>
+                                </div>
+                                <p class="text-gray-600 text-sm leading-relaxed">${p.why_it_matters||''}</p>
+                            </div>
+                        </div>`).join('')}
+                </div>
+            </div>
+
+            <!-- Competitor trajectory -->
+            <div id="q-competitors" class="${SM}">
+                <h3 class="text-lg font-bold text-blue-900 mb-4 flex items-center gap-2.5">
+                    <span class="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center text-base flex-shrink-0">🏢</span>
+                    競業季度軌跡
+                </h3>
+                <div class="bg-white rounded-2xl card overflow-hidden">
+                    <div class="flex border-b border-gray-100 bg-slate-50/60 px-2 pt-2 gap-1">
+                        <button onclick="switchQCompTab('tw',this)" id="qcomp-tab-tw"
+                                class="qcomp-tab-btn px-5 py-2.5 text-sm font-semibold rounded-t-xl border-b-2 border-blue-600 text-blue-700 bg-white transition-all -mb-px">台灣金融機構</button>
+                        <button onclick="switchQCompTab('intl',this)" id="qcomp-tab-intl"
+                                class="qcomp-tab-btn px-5 py-2.5 text-sm font-semibold rounded-t-xl border-b-2 border-transparent text-gray-500 hover:text-gray-700 transition-all -mb-px">國際動態</button>
+                    </div>
+                    <div id="qcomp-panel-tw" class="qcomp-tab-panel comp-tab-panel active overflow-x-auto">
+                        ${twData.length ? compTable(twData) : '<p class="px-5 py-8 text-center text-gray-400 text-sm">本季無台灣競業重大軌跡</p>'}
+                    </div>
+                    <div id="qcomp-panel-intl" class="qcomp-tab-panel comp-tab-panel overflow-x-auto">
+                        ${intlData.length ? compTable(intlData) : '<p class="px-5 py-8 text-center text-gray-400 text-sm">本季無國際競業重大軌跡</p>'}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recommendations (10 subsidiaries) -->
+            <div id="q-recommendations" class="${SM}">
+                <h3 class="text-lg font-bold text-blue-900 mb-4 flex items-center gap-2.5">
+                    <span class="w-8 h-8 rounded-xl bg-orange-100 flex items-center justify-center text-base flex-shrink-0">💡</span>
+                    季度策略重點
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    ${depts.map((dept,i) => {
+                        const actions = recData[dept]||[];
+                        return `<div class="bg-white rounded-2xl card border-t-4 ${deptColors[i%deptColors.length]} p-5">
+                            <h4 class="font-bold text-gray-800 mb-3.5 text-sm">${dept}</h4>
+                            <ul class="space-y-3">${actions.map(a=>`
+                                <li class="flex items-start gap-2.5 text-sm">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-orange-400 mt-2 flex-shrink-0"></span>
+                                    <div>
+                                        <span class="font-medium text-gray-700">${a.action}</span>
+                                        ${a.rationale?`<p class="text-gray-500 text-xs mt-1 leading-relaxed">${a.rationale}</p>`:''}
+                                    </div>
+                                </li>`).join('')}
+                            </ul>
+                        </div>`;
+                    }).join('')}
+                </div>
+            </div>
+
+            <!-- Reads -->
+            <div id="q-reads" class="${SM} pb-4">
+                <h3 class="text-lg font-bold text-blue-900 mb-4 flex items-center gap-2.5">
+                    <span class="w-8 h-8 rounded-xl bg-purple-100 flex items-center justify-center text-base flex-shrink-0">📎</span>
+                    深讀推薦
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    ${(data.recommended_reads||[]).map(r=>`
+                        <div class="bg-white rounded-2xl card border border-transparent hover:border-blue-200 p-5 flex flex-col gap-3 transition-all card-hover" style="border-color:#f1f5f9;">
+                            <div class="flex items-center justify-between">
+                                <span class="w-7 h-7 rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 text-white flex items-center justify-center text-sm font-bold flex-shrink-0 shadow-sm">${r.rank}</span>
+                                <span class="text-xs text-gray-400">${r.date} · ${r.source}</span>
+                            </div>
+                            <h4 class="font-semibold text-gray-800 text-sm leading-snug flex-1">${r.title}</h4>
+                            <p class="text-xs text-gray-500 leading-relaxed">${r.reason}</p>
+                            ${r.url?`<a href="${r.url}" target="_blank" rel="noopener"
+                                class="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-800 transition-colors mt-auto">
+                                閱讀原文
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                            </a>`:''}
+                        </div>`).join('')}
+                </div>
+            </div>`;
+
+        document.getElementById('quarterly-content').innerHTML = html;
+        setupQuarterSectionNavObserver();
+        updateQuarterBottomNavActive('q-summary');
+    }
+
+    function switchQCompTab(type, btn) {
+        document.querySelectorAll('.qcomp-tab-panel').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.qcomp-tab-btn').forEach(b => {
+            b.classList.remove('border-blue-600','text-blue-700','bg-white');
+            b.classList.add('border-transparent','text-gray-500');
+        });
+        document.getElementById(`qcomp-panel-${type}`).classList.add('active');
+        btn.classList.add('border-blue-600','text-blue-700','bg-white');
+        btn.classList.remove('border-transparent','text-gray-500');
+    }
+
+    function setupQuarterSectionNavObserver() {
+        const sections = ['q-summary','q-timeline','q-arcs','q-inflections','q-competitors','q-recommendations','q-reads'];
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const id = entry.target.id;
+                    document.querySelectorAll('.q-section-nav-link').forEach(link =>
+                        link.classList.toggle('active', link.getAttribute('href') === `#${id}`)
+                    );
+                    updateQuarterBottomNavActive(id);
+                }
+            });
+        }, { rootMargin: '-15% 0px -65% 0px' });
+        sections.forEach(id => { const el = document.getElementById(id); if (el) observer.observe(el); });
+    }
+
+    // ======================================================
+    // INIT
+    // ======================================================
+    window.addEventListener('DOMContentLoaded', initData);
+    </script>
+</body>
+</html>
