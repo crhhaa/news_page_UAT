@@ -22,8 +22,9 @@
             background: #fff;
         }
         .stale { opacity: .45; }
-        .tl-dot { cursor: pointer; transition: transform .08s; }
-        .tl-dot:hover { transform: scale(1.6); }
+        /* 點擊區是整欄（手機上單顆點太小點不到），點本身只是視覺 */
+        .tl-col { cursor: pointer; border-radius: 3px; }
+        .tl-col:hover, .tl-col.on { background: #f1f5f9; }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800 font-sans">
@@ -402,11 +403,11 @@
                 const side = (r['能力項ID'] || '')[0] === 'A' ? 'AI' : '數金';
                 const t = TAX.find(x => x['能力項ID'] === r['能力項ID']) || {};
                 const latest = d === r['最近佐證日期'];
-                return `<span class="tl-dot w-2.5 h-2.5 rounded-full block" style="background:${side === 'AI' ? AI_FILL : FIN_FILL};opacity:${latest ? 1 : .45}"
-                          onclick="showTLPoint(${CAP.indexOf(r)},'${d}')"
+                return `<span class="w-2.5 h-2.5 rounded-full block" style="background:${side === 'AI' ? AI_FILL : FIN_FILL};opacity:${latest ? 1 : .45}"
                           title="${d}｜${r['子公司']}｜${t['能力項'] || ''}（${r['狀態']}）${latest ? '' : '・先前的推進紀錄'}"></span>`;
             }).join('');
-            return `<div class="flex flex-col-reverse items-center gap-0.5 flex-1 min-w-[14px]" style="height:${H}px">${dots}</div>`;
+            return `<div class="${rs.length ? 'tl-col' : ''} flex flex-col-reverse items-center gap-0.5 flex-1 min-w-[14px]"
+                         style="height:${H}px" ${rs.length ? `onclick="showTLMonth('${m}',this)"` : ''}>${dots}</div>`;
         }).join('');
 
         const ticks = months.map((m, i) => {
@@ -416,26 +417,31 @@
 
         return `<div class="flex items-end gap-0.5">${cols}</div>
                 <div class="border-t border-gray-200 mt-1 pt-1 flex gap-0.5">${ticks}</div>
-                <p class="text-[11px] text-gray-400 mt-1">一點＝一次佐證（同一件事的歷次推進都會落點，較淡的是先前紀錄）；點一下看該則新聞。橫跨 ${months[0]} ～ ${months[months.length - 1]}。<span class="text-gray-400">本站 2026-04 起蒐集，早期月份為回補語料、密度偏低。</span></p>
+                <p class="text-[11px] text-gray-400 mt-1">一點＝一次佐證（同一件事的歷次推進都會落點，較淡的是先前紀錄）；點某個月份看那個月的新聞。橫跨 ${months[0]} ～ ${months[months.length - 1]}。<span class="text-gray-400">本站 2026-04 起蒐集，早期月份為回補語料、密度偏低。</span></p>
                 <div id="tlDetail" class="hidden mt-2"></div>`;
     }
 
-    // 時間線上點一下 → 顯示該點對應的那則佐證
-    function showTLPoint(i, d) {
-        const r = CAP[i];
-        const t = TAX.find(x => x['能力項ID'] === r['能力項ID']) || {};
+    // 點某個月份那一欄 → 列出該月所有佐證
+    function showTLMonth(m, el) {
+        document.querySelectorAll('.tl-col.on').forEach(x => x.classList.remove('on'));
+        el.classList.add('on');
+        const items = CAP.filter(r => r['集團'] === currentCompany)
+            .flatMap(r => datesOf(r).filter(d => d.startsWith(m)).map(d => ({ r, d })))
+            .sort((a, b) => a.d.localeCompare(b.d));
         const box = document.getElementById('tlDetail');
         box.classList.remove('hidden');
         box.innerHTML = `<div class="border border-gray-200 rounded-lg bg-gray-50 p-3">
-            <div class="flex items-start justify-between gap-3 mb-1">
-                <div>
-                    <span class="text-xs text-gray-400">${d}${d === r['最近佐證日期'] ? '' : '・先前的推進紀錄'}</span>
-                    <h4 class="font-semibold text-sm text-gray-800">${r['子公司']}｜${t['能力項'] || ''}</h4>
-                </div>
+            <div class="flex items-start justify-between gap-3 mb-2">
+                <h4 class="font-semibold text-sm text-gray-800">${m.replace('-', ' / ')}｜${items.length} 則佐證</h4>
                 <button onclick="document.getElementById('tlDetail').classList.add('hidden')"
                         class="text-gray-400 hover:text-gray-600 text-sm">✕</button>
             </div>
-            ${evidenceHTML([r], true)}</div>`;
+            <div class="space-y-2">${items.map(({ r, d }) => {
+                const t = TAX.find(x => x['能力項ID'] === r['能力項ID']) || {};
+                return `<div>
+                    <div class="text-xs text-gray-500 mb-0.5">${d}｜${r['子公司']}｜${t['能力項'] || ''}${d === r['最近佐證日期'] ? '' : '・先前的推進紀錄'}</div>
+                    ${evidenceHTML([r], true)}</div>`;
+            }).join('')}</div></div>`;
     }
 
     function renderCompanyTabs() {
