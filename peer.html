@@ -10,10 +10,16 @@
         html { scroll-behavior: smooth; }
         .cell { cursor: pointer; transition: transform .08s; }
         .cell:hover { transform: scale(1.06); }
-        .matrix-wrap { overflow-x: auto; }
+        /* 捲動容器本身不留左右 padding：有 padding 的話格子會捲進 padding 區、露在 sticky 首欄旁邊 */
+        .matrix-wrap { overflow-x: auto; padding-left: 0; padding-right: 0; }
         .matrix { margin-inline: auto; }   /* 窄於容器時置中；寬於容器時 margin 自動歸零，橫捲與 sticky 不受影響 */
         .matrix th.sticky-col, .matrix td.sticky-col {
-            position: sticky; left: 0; background: #fff; z-index: 2;
+            position: sticky; left: 0; background: #fff; z-index: 3;
+        }
+        /* border-spacing 的縫隙是透明的，補一道白色遮罩擋住捲過來的格子 */
+        .matrix th.sticky-col::after, .matrix td.sticky-col::after {
+            content: ''; position: absolute; top: -4px; bottom: -4px; right: 100%; width: 40px;
+            background: #fff;
         }
         .stale { opacity: .45; }
     </style>
@@ -86,9 +92,9 @@
                     <h1 class="text-xl font-semibold text-gray-700">同業當前概觀</h1>
                     <p class="text-sm text-gray-500 mt-1" id="metaLine">載入中…</p>
                 </div>
-                <div class="flex items-center gap-1 bg-gray-100 rounded-xl p-1 flex-shrink-0">
-                    <button class="view-tab px-4 py-1.5 rounded-lg text-sm font-semibold transition-all" data-view="matrix">🔍 同業能力總覽</button>
-                    <button class="view-tab px-4 py-1.5 rounded-lg text-sm font-semibold transition-all" data-view="company">🏢 單家詳頁</button>
+                <div class="flex items-center gap-1 bg-gray-100 rounded-xl p-1 w-full sm:w-auto flex-shrink-0">
+                    <button class="view-tab flex-1 sm:flex-none sm:w-40 text-center px-3 py-1.5 rounded-lg text-sm font-semibold transition-all" data-view="matrix">🔍 同業能力總覽</button>
+                    <button class="view-tab flex-1 sm:flex-none sm:w-40 text-center px-3 py-1.5 rounded-lg text-sm font-semibold transition-all" data-view="company">🏢 單家詳頁</button>
                 </div>
             </div>
 
@@ -277,7 +283,7 @@
         const ref = opt.reference ? `<polygon points="${opt.reference.map((v, i) => pt(i, Math.max(radiusOf(v), 0.02)).join(',')).join(' ')}"
                      fill="none" stroke="#9ca3af" stroke-width="1" stroke-dasharray="3 2"/>` : '';
 
-        const fs = size > 240 ? 10 : 9;
+        const fs = size > 280 ? 10 : size > 220 ? 9 : 7.5;   // 手機上的小雷達字體再縮一點
         const labels = opt.labels === false ? '' : axes.map((t, i) => {
             const co = Math.cos(ang(i)), si = Math.sin(ang(i));
             const [x0, y0] = pt(i, Math.abs(co) < 0.25 ? 1.16 : 1.08);
@@ -291,7 +297,7 @@
                      font-size="${fs}" fill="${line}">${tspans}<title>${t['能力項']}｜${t['定義']}</title></text>`;
         }).join('');
 
-        return `<svg viewBox="0 0 ${size} ${size}" width="${size}" height="${size}" class="block mx-auto">
+        return `<svg viewBox="0 0 ${size} ${size}" width="100%" style="max-width:${size}px" class="block mx-auto">
                     ${grid}${spokes}${ref}${shapes}${dots}${labels}
                 </svg>`;
     }
