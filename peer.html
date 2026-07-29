@@ -136,6 +136,7 @@
                     <span class="text-gray-400">佐證多</span>
                 </span>
                 <span class="flex items-center gap-1.5"><span class="w-4 h-4 rounded inline-block" style="background:#fbbf24"></span>宣示中</span>
+                <span class="flex items-center gap-1.5"><span class="w-4 h-4 rounded inline-block" style="background:#f87171"></span>暫停</span>
                 <span class="flex items-center gap-1.5"><span class="w-4 h-4 rounded inline-block" style="background:#e5e7eb"></span>未見佐證</span>
                 <span class="text-gray-400">｜「未見佐證」僅代表公開資訊未提及，不等於對方未導入</span>
             </div>
@@ -208,8 +209,10 @@
     function cellOf(group, capId) {
         const rows = CAP.filter(r => r['集團'] === group && r['能力項ID'] === capId);
         if (!rows.length) return null;
-        const status = rows.some(r => r['狀態'] === '已導入') ? '已導入' : '宣示中';
         rows.sort((a, b) => (b['最近佐證日期'] || '').localeCompare(a['最近佐證日期'] || ''));
+        // 狀態取最高（已導入 > 宣示中），但「暫停」若是該格最新的佐證就蓋過去——服務停辦了就不該還顯示已導入
+        const status = rows[0]['狀態'] === '暫停' ? '暫停'
+            : rows.some(r => r['狀態'] === '已導入') ? '已導入' : '宣示中';
         const subs = new Set(rows.map(r => r['子公司'])).size;
         const hits = rows.length;
         return { status, rows, latest: rows[0]['最近佐證日期'] || '', subs, hits };
@@ -252,12 +255,13 @@
 
     function cellStyle(c) {
         if (!c) return 'background:#e5e7eb';
+        if (c.status === '暫停') return 'background:#f87171';
         if (c.status === '宣示中') return 'background:#fbbf24';
         return `background:${heatColor(c.hits)}`;
     }
 
     // ── 能力雷達（純 SVG）：AI 面與數金面各自一張，軸數依 taxonomy 動態決定 ────
-    const SCORE = { '已導入': 1, '宣示中': 0.5 };
+    const SCORE = { '已導入': 1, '宣示中': 0.5, '暫停': 0 };
     // 軸標籤用看得懂的短名（\n 換行），不用 A1/B1 代號
     const SHORT_NAME = {
         A1: '全員 AI', A2: '金融語言\n模型', A3: 'AI 治理\n與算力',
