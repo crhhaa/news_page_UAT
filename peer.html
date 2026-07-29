@@ -25,6 +25,8 @@
         /* 點擊區是整欄（手機上單顆點太小點不到），點本身只是視覺 */
         .tl-col { cursor: pointer; border-radius: 3px; }
         .tl-col:hover, .tl-col.on { background: #f1f5f9; }
+        /* 左側時間軸已有一條線，卡片自己的灰色左框就收掉（宣示中的琥珀色保留當狀態提示） */
+        .tl-rail .border-slate-300 { border-color: transparent; }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800 font-sans">
@@ -414,7 +416,10 @@
     }
 
     // 佐證時間線：按月分欄，每則佐證一個點（AI／數金分色），同月往上疊
-    function timelineHTML(rows) {
+    // key＝這條時間線的識別（集團一條、每個事業體各一條），點月份時要靠它找回自己的資料與詳情框
+    const TL_SCOPE = {};
+    function timelineHTML(rows, key = 'g', compact = false) {
+        TL_SCOPE[key] = rows;
         // 一條佐證可能有多個歷次日期，每個日期都落一點
         const dated = rows.flatMap(r => datesOf(r).map(d => ({ r, d })));
         if (!dated.length) return '<p class="text-sm text-gray-400">尚無可排序的佐證日期</p>';
@@ -434,7 +439,7 @@
                           title="${d}｜${r['子公司']}｜${t['能力項'] || ''}（${r['狀態']}）${latest ? '' : '・先前的推進紀錄'}"></span>`;
             }).join('');
             return `<div class="${rs.length ? 'tl-col' : ''} flex flex-col-reverse items-center gap-0.5 flex-1 min-w-[14px]"
-                         style="height:${H}px" ${rs.length ? `onclick="showTLMonth('${m}',this)"` : ''}>${dots}</div>`;
+                         style="height:${H}px" ${rs.length ? `onclick="showTLMonth('${m}','${key}',this)"` : ''}>${dots}</div>`;
         }).join('');
 
         const ticks = months.map((m, i) => {
@@ -444,23 +449,25 @@
 
         return `<div class="flex items-end gap-0.5">${cols}</div>
                 <div class="border-t border-gray-200 mt-1 pt-1 flex gap-0.5">${ticks}</div>
-                <p class="text-[11px] text-gray-400 mt-1">一點＝一次佐證（同一件事的歷次推進都會落點，較淡的是先前紀錄）；點某個月份看那個月的新聞。橫跨 ${months[0]} ～ ${months[months.length - 1]}。<span class="text-gray-400">本站 2026-04 起蒐集，早期月份為回補語料、密度偏低。</span></p>
-                <div id="tlDetail" class="hidden mt-2"></div>`;
+                ${compact
+                    ? '<p class="text-[11px] text-gray-400 mt-1">一點＝一次佐證；點某個月份看那個月的新聞</p>'
+                    : `<p class="text-[11px] text-gray-400 mt-1">一點＝一次佐證（同一件事的歷次推進都會落點，較淡的是先前紀錄）；點某個月份看那個月的新聞。橫跨 ${months[0]} ～ ${months[months.length - 1]}。<span class="text-gray-400">本站 2026-04 起蒐集，早期月份為回補語料、密度偏低。</span></p>`}
+                <div id="tlDetail-${key}" class="hidden mt-2"></div>`;
     }
 
-    // 點某個月份那一欄 → 列出該月所有佐證
-    function showTLMonth(m, el) {
-        document.querySelectorAll('.tl-col.on').forEach(x => x.classList.remove('on'));
+    // 點某個月份那一欄 → 列出該月所有佐證（只看這條時間線自己的資料）
+    function showTLMonth(m, key, el) {
+        el.parentElement.querySelectorAll('.tl-col.on').forEach(x => x.classList.remove('on'));
         el.classList.add('on');
-        const items = CAP.filter(r => r['集團'] === currentCompany)
+        const items = (TL_SCOPE[key] || [])
             .flatMap(r => datesOf(r).filter(d => d.startsWith(m)).map(d => ({ r, d })))
             .sort((a, b) => a.d.localeCompare(b.d));
-        const box = document.getElementById('tlDetail');
+        const box = document.getElementById('tlDetail-' + key);
         box.classList.remove('hidden');
         box.innerHTML = `<div class="border border-gray-200 rounded-lg bg-gray-50 p-3">
             <div class="flex items-start justify-between gap-3 mb-2">
                 <h4 class="font-semibold text-sm text-gray-800">${m.replace('-', ' / ')}｜${groupNews(items).length} 則新聞</h4>
-                <button onclick="document.getElementById('tlDetail').classList.add('hidden')"
+                <button onclick="document.getElementById('tlDetail-${key}').classList.add('hidden')"
                         class="text-gray-400 hover:text-gray-600 text-sm">✕</button>
             </div>
             <div class="space-y-2">${newsHTML(items, true, true)}</div></div>`;
@@ -523,23 +530,27 @@
             (a.isGroup ? 0 : a.rank) - (b.isGroup ? 0 : b.rank));
         if (pickedSubs === null) pickedSubs = ordered.map(b2 => b2.name);   // 預設全部畫上
 
-        const subBlock = b => {
+        const subBlock = (b, i) => {
             // 一則新聞列一次（新到舊），對到的能力項用 hashtag 掛在下面
             const items = byLatest(b.rows);
-            const caps = groupNews(items).map(({ r, caps }) =>
-                `<div class="py-2 border-b border-gray-100 last:border-0">${evidenceHTML([r], true)}${hashTags(caps)}</div>`).join('');
+            // 左側一條細時間軸：每則新聞一個點（顏色取第一個能力項的側），旁邊標日期
+            const caps = `<div class="tl-rail border-l border-gray-200 ml-1 pl-4">${groupNews(items).map(({ r, caps }) => {
+                const c = (caps[0] || {})['側'] === 'AI' ? AI_FILL : FIN_FILL;
+                return `<div class="relative pb-3">
+                    <span class="absolute -left-[21px] top-1.5 w-2 h-2 rounded-full ring-2 ring-white" style="background:${c}"></span>
+                    <div class="text-[11px] text-gray-400 mb-0.5">${r['最近佐證日期']}</div>
+                    ${evidenceHTML([r], true)}${hashTags(caps)}</div>`;
+            }).join('')}</div>`;
             return `<div class="bg-white rounded-xl shadow-sm border ${b.isGroup ? 'border-blue-200' : 'border-gray-200'} p-4 sm:p-5">
+                        <div class="flex flex-wrap items-center gap-2 mb-1">
+                            <h3 class="font-semibold text-gray-700">${b.isMain ? '★ ' : ''}${b.name}</h3>
+                            ${b.sector ? `<span class="text-[11px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-500">${b.sector}</span>` : ''}
+                            ${b.isMain ? '<span class="text-[11px] px-1.5 py-0.5 rounded bg-orange-50 text-orange-700">主事業體</span>' : ''}
+                            <span class="text-xs text-gray-400">${new Set(b.rows.map(r => r['能力項ID'])).size} 項能力・${groupNews(items).length} 則新聞</span>
+                        </div>
+                        ${b.isGroup ? '<p class="text-xs text-gray-400 mb-1">掛在金控層的跨子公司動作，未再歸屬到個別子公司</p>' : ''}
                         <div class="sm:flex sm:items-start sm:gap-4">
-                            <div class="min-w-0 flex-1">
-                                <div class="flex flex-wrap items-center gap-2 mb-1">
-                                    <h3 class="font-semibold text-gray-700">${b.isMain ? '★ ' : ''}${b.name}</h3>
-                                    ${b.sector ? `<span class="text-[11px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-500">${b.sector}</span>` : ''}
-                                    ${b.isMain ? '<span class="text-[11px] px-1.5 py-0.5 rounded bg-orange-50 text-orange-700">主事業體</span>' : ''}
-                                    <span class="text-xs text-gray-400">${new Set(b.rows.map(r => r['能力項ID'])).size} 項能力・${groupNews(items).length} 則新聞</span>
-                                </div>
-                                ${b.isGroup ? '<p class="text-xs text-gray-400 mb-1">掛在金控層的跨子公司動作，未再歸屬到個別子公司</p>' : ''}
-                                ${caps}
-                            </div>
+                            <div class="min-w-0 flex-1">${caps}</div>
                             <div class="flex-shrink-0 mx-auto sm:mx-0 sm:w-96 order-first sm:order-none grid grid-cols-2 gap-1">
                                 <div><div class="text-[11px] text-center" style="color:${AI_FILL}">AI 側</div>${radarSVG(scoresFrom(b.rows, 'AI'), 'AI', 190, { pad: 44, rows: b.rows })}</div>
                                 <div><div class="text-[11px] text-center" style="color:${FIN_FILL}">數金側</div>${radarSVG(scoresFrom(b.rows, '數金'), '數金', 190, { pad: 44, rows: b.rows })}</div>
