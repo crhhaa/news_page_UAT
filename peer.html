@@ -366,9 +366,9 @@
     const svgAI = `<svg class="w-3 h-3 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/></svg>`;
     const svgFin = `<svg class="w-3 h-3 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>`;
     const splitBadge = ({ ai, fin }) =>
-        `<div class="flex items-center gap-2 mt-1">
-            <span class="inline-flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded" style="color:${AI_FILL};background:${AI_FILL}1a">${svgAI} AI ${ai}</span>
-            <span class="inline-flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded" style="color:${FIN_FILL};background:${FIN_FILL}1a">${svgFin} 數金 ${fin}</span>
+        `<div class="flex items-center sm:justify-end gap-1.5 mt-1 sm:mt-0">
+            <span class="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded" style="color:${AI_FILL};background:${AI_FILL}1a">${svgAI} AI ${ai}</span>
+            <span class="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded" style="color:${FIN_FILL};background:${FIN_FILL}1a">${svgFin} 數金 ${fin}</span>
         </div>`;
 
     function renderMatrixStats() {
@@ -406,13 +406,15 @@
         const finTotal = TAX.filter(t => t['側'] === '數金').length;
 
         const card = (icon, label, value, sub, split) => `
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 flex items-start gap-3">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-3.5 flex items-start gap-3">
                 <div class="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">${icon}</div>
-                <div class="min-w-0">
-                    <div class="text-xs text-gray-400 mb-0.5">${label}</div>
-                    <div class="text-lg font-bold text-gray-800">${value}</div>
-                    ${sub ? `<div class="text-xs text-gray-500 mt-0.5">${sub}</div>` : ''}
-                    ${split || ''}
+                <div class="min-w-0 flex-1 flex flex-col sm:flex-row sm:items-start justify-between gap-1 sm:gap-2">
+                    <div>
+                        <div class="text-[11px] text-gray-400 mb-0.5">${label}</div>
+                        <div class="text-lg font-bold text-gray-800 leading-tight">${value}</div>
+                        ${sub ? `<div class="text-[10px] text-gray-400 mt-0.5">${sub}</div>` : ''}
+                    </div>
+                    ${split ? `<div class="sm:text-right shrink-0">${split}</div>` : ''}
                 </div>
             </div>`;
 
@@ -422,15 +424,15 @@
                  thisMonthCount ? splitBadge(sideSplit(thisMonthRows)) : '')
           + card(`<svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>`, '近三月新增佐證', `${recent3Count} 條`, '',
                  recent3Count ? `${splitBadge(sideSplit(recent3))}
-                    <div class="mt-1.5 space-y-0.5 text-[11px] text-gray-500">
-                        ${topAI3.length ? `<div><span style="color:${AI_FILL}">▸ AI 最活躍：</span>${topAI3.join('、')}</div>` : ''}
-                        ${topFIN3.length ? `<div><span style="color:${FIN_FILL}">▸ 數金最活躍：</span>${topFIN3.join('、')}</div>` : ''}
+                    <div class="mt-1 space-y-0.5 text-[10px] text-gray-400 sm:text-right">
+                        ${topAI3.length ? `<div><span style="color:${AI_FILL}">▸ AI 活躍：</span>${topAI3.join('、')}</div>` : ''}
+                        ${topFIN3.length ? `<div><span style="color:${FIN_FILL}">▸ 數金活躍：</span>${topFIN3.join('、')}</div>` : ''}
                     </div>` : '')
           + card(`<svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>`, '元大涵蓋能力子分類', `${yuantaCoverage} / ${TAX.length} 項`,
                  `涵蓋率 ${Math.round(yuantaCoverage / TAX.length * 100)}%`,
-                 `<div class="flex items-center gap-2 mt-1">
-                    <span class="inline-flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded" style="color:${AI_FILL};background:${AI_FILL}1a">${svgAI} AI ${yuantaAI}/${aiTotal}</span>
-                    <span class="inline-flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded" style="color:${FIN_FILL};background:${FIN_FILL}1a">${svgFin} 數金 ${yuantaCoverage - yuantaAI}/${finTotal}</span>
+                 `<div class="flex items-center sm:justify-end gap-1.5 mt-1 sm:mt-0">
+                    <span class="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded" style="color:${AI_FILL};background:${AI_FILL}1a">${svgAI} AI ${yuantaAI}/${aiTotal}</span>
+                    <span class="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded" style="color:${FIN_FILL};background:${FIN_FILL}1a">${svgFin} 數金 ${yuantaCoverage - yuantaAI}/${finTotal}</span>
                  </div>`);
     }
 
