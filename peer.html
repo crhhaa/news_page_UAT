@@ -27,6 +27,32 @@
         .tl-col:hover, .tl-col.on { background: #f1f5f9; }
         /* 左側時間軸已有一條線，卡片自己的灰色左框就收掉（宣示中的琥珀色保留當狀態提示） */
         .tl-rail .border-slate-300 { border-color: transparent; }
+        /* 能力項名稱可點擊：看橫向比較 */
+        .cap-label { cursor: pointer; border-radius: 4px; padding: 1px 4px; margin: -1px -4px; transition: background .12s, color .12s; }
+        .cap-label:hover { background: #eff6ff; color: #1e40af; }
+        .cap-label.active { background: #dbeafe; color: #1e40af; }
+        /* 雷達圖上的能力標籤可點擊 */
+        .radar-cap-label { cursor: pointer; transition: opacity .15s; }
+        .radar-cap-label:hover { opacity: .65; }
+        /* 子公司 sub-tab */
+        .sub-tab { cursor: pointer; transition: all .15s; border: 1px solid #d1d5db; }
+        .sub-tab:hover { background: #eff6ff; border-color: #93c5fd; }
+        .sub-tab.active { background: #1d4ed8; border-color: #1d4ed8; color: #fff; }
+        /* 集團名可點擊：跳單家詳頁 */
+        .group-label { cursor: pointer; transition: color .12s; }
+        .group-label:hover { color: #1e40af !important; text-decoration: underline; }
+        /* 橫向比較 bar chart */
+        .cap-bar-wrap { position: relative; }
+        .cap-bar { height: 28px; border-radius: 4px; transition: width .4s ease-out, opacity .15s; min-width: 2px; display: flex; align-items: center; }
+        .cap-bar:hover { opacity: .85; }
+        .cap-bar-label { font-size: 11px; font-weight: 600; white-space: nowrap; padding-left: 6px; }
+        .cap-compare-row { display: grid; grid-template-columns: 72px 1fr 52px; gap: 6px; align-items: center; padding: 3px 0; border-bottom: 1px solid #f3f4f6; }
+        .cap-compare-row:last-child { border-bottom: none; }
+        .cap-compare-row:hover { background: #f9fafb; border-radius: 6px; }
+        .cap-compare-name { font-size: 12px; font-weight: 600; cursor: pointer; text-align: right; padding-right: 4px; }
+        .cap-compare-name:hover { color: #1e40af; text-decoration: underline; }
+        .cap-compare-name.is-yuanta { color: #ea580c; }
+        .cap-compare-count { font-size: 11px; font-weight: 700; text-align: center; }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800 font-sans">
@@ -98,8 +124,8 @@
                     <p class="text-sm text-gray-500 mt-1" id="metaLine">載入中…</p>
                 </div>
                 <div class="flex items-center gap-1 bg-gray-100 rounded-xl p-1 w-full sm:w-auto flex-shrink-0">
-                    <button class="view-tab flex-1 sm:flex-none sm:w-40 text-center px-3 py-1.5 rounded-lg text-sm font-semibold transition-all" data-view="matrix">🔍 同業能力總覽</button>
-                    <button class="view-tab flex-1 sm:flex-none sm:w-40 text-center px-3 py-1.5 rounded-lg text-sm font-semibold transition-all" data-view="company">🏢 單家詳頁</button>
+                    <button class="view-tab flex-1 sm:flex-none sm:w-44 px-3 py-1.5 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-1.5" data-view="matrix"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>同業能力總覽</button>
+                    <button class="view-tab flex-1 sm:flex-none sm:w-44 px-3 py-1.5 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-1.5" data-view="company"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>單家詳頁</button>
                 </div>
             </div>
 
@@ -117,10 +143,23 @@
 
         <!-- 視圖一：矩陣 -->
         <div id="view-matrix">
+            <!-- 摘要統計卡 -->
+            <div id="matrixStats" class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4"></div>
+
+            <!-- AI側 / 數金側 子 Tab -->
+            <div class="flex items-center gap-1 bg-gray-100 rounded-xl p-1 mb-4 w-fit">
+                <button class="side-tab px-4 py-1.5 rounded-lg text-sm font-semibold transition-all flex items-center gap-1.5" data-side="AI"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/></svg>AI 側</button>
+                <button class="side-tab px-4 py-1.5 rounded-lg text-sm font-semibold transition-all flex items-center gap-1.5" data-side="數金"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>數金側</button>
+            </div>
+
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-5 matrix-wrap">
+                <div class="flex flex-wrap items-center justify-end gap-x-1 mb-3 text-[11px] text-gray-400">
+                    <span>點擊格子可展開佐證｜點能力項名稱可查看 12 家橫向比較｜點集團名可進入單家詳頁</span>
+                </div>
                 <div id="matrixHost"></div>
             </div>
             <div id="cellDetail" class="hidden bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-5 mt-4"></div>
+            <div id="capCompare" class="hidden bg-white rounded-xl shadow-sm border border-blue-200 p-4 sm:p-5 mt-4"></div>
 
         </div>
 
@@ -217,7 +256,7 @@
         return `background:${heatColor(c.hits)}`;
     }
 
-    // ── 能力雷達（純 SVG）：AI 側與數金側各自一張，軸數依 taxonomy 動態決定 ────
+    // ── 能力雷達（純 SVG）：AI 面與數金面各自一張，軸數依 taxonomy 動態決定 ────
     const SCORE = { '已導入': 1, '宣示中': 0.5 };
     // 軸標籤用看得懂的短名（\n 換行），不用 A1/B1 代號
     const SHORT_NAME = {
@@ -288,6 +327,7 @@
                      fill="none" stroke="#9ca3af" stroke-width="1" stroke-dasharray="3 2"/>` : '';
 
         const fs = size > 280 ? 10 : size > 220 ? 9 : 7.5;   // 手機上的小雷達字體再縮一點
+        const clickable = opt.clickable;   // 如果傳了 clickable 集團名，就加 onclick
         const labels = opt.labels === false ? '' : axes.map((t, i) => {
             const co = Math.cos(ang(i)), si = Math.sin(ang(i));
             const [x0, y0] = pt(i, Math.abs(co) < 0.25 ? 1.16 : 1.08);
@@ -297,8 +337,10 @@
             const lines = (SHORT_NAME[t['能力項ID']] || t['能力項']).split('\n');
             const tspans = lines.map((ln, k) =>
                 `<tspan x="${x}" dy="${k === 0 ? -(lines.length - 1) * fs * 0.55 : fs * 1.1}">${ln}</tspan>`).join('');
+            const cls = clickable ? ' class="radar-cap-label"' : '';
+            const click = clickable ? ` onclick="showRadarCap('${clickable}','${t['能力項ID']}')" style="cursor:pointer"` : '';
             return `<text x="${x}" y="${y}" text-anchor="${anchor}" dominant-baseline="middle"
-                     font-size="${fs}" fill="${line}">${tspans}<title>${t['能力項']}｜${t['定義']}</title></text>`;
+                     font-size="${fs}" fill="${line}"${cls}${click}>${tspans}<title>${t['能力項']}｜${t['定義']}${clickable ? '｜點擊查看佐證' : ''}</title></text>`;
         }).join('');
 
         return `<svg viewBox="0 0 ${size} ${size}" width="100%" style="max-width:${size}px" class="block mx-auto">
@@ -311,7 +353,90 @@
 
     const SUB_COLORS = ['#ea580c', '#2563eb', '#7c3aed', '#0891b2', '#db2777', '#65a30d'];
 
-    function renderMatrix() {
+    let currentSide = 'AI';   // 矩陣子 tab 預設 AI 面
+
+    // 計算一組佐證 rows 中 AI 面 vs 數金面各幾條
+    const AI_IDS = new Set();
+    const FIN_IDS = new Set();
+    function initSideIds() { TAX.forEach(t => (t['側'] === 'AI' ? AI_IDS : FIN_IDS).add(t['能力項ID'])); }
+    const sideSplit = rows => {
+        const ai = rows.filter(r => AI_IDS.has(r['能力項ID'])).length;
+        return { ai, fin: rows.length - ai };
+    };
+    const svgAI = `<svg class="w-3 h-3 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/></svg>`;
+    const svgFin = `<svg class="w-3 h-3 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>`;
+    const splitBadge = ({ ai, fin }) =>
+        `<div class="flex items-center gap-2 mt-1">
+            <span class="inline-flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded" style="color:${AI_FILL};background:${AI_FILL}1a">${svgAI} AI ${ai}</span>
+            <span class="inline-flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded" style="color:${FIN_FILL};background:${FIN_FILL}1a">${svgFin} 數金 ${fin}</span>
+        </div>`;
+
+    function renderMatrixStats() {
+        if (!AI_IDS.size) initSideIds();
+        const host = document.getElementById('matrixStats');
+        const now = new Date();
+        const thisMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+        const threeMonthsAgo = new Date(now);
+        threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+        const threeMAgoStr = `${threeMonthsAgo.getFullYear()}-${String(threeMonthsAgo.getMonth() + 1).padStart(2, '0')}`;
+
+        // 本月新增佐證
+        const thisMonthRows = CAP.filter(r => (r['最近佐證日期'] || '').slice(0, 7) === thisMonth);
+        const thisMonthCount = thisMonthRows.length;
+
+        // 近三月新增佐證 & 最活躍集團（分 AI / 數金）
+        const recent3 = CAP.filter(r => (r['最近佐證日期'] || '').slice(0, 7) >= threeMAgoStr);
+        const recent3Count = recent3.length;
+        const recent3AI = recent3.filter(r => AI_IDS.has(r['能力項ID']));
+        const recent3FIN = recent3.filter(r => FIN_IDS.has(r['能力項ID']));
+        const topGroups = rows => {
+            const gc = {};
+            rows.forEach(r => { gc[r['集團']] = (gc[r['集團']] || 0) + 1; });
+            return Object.entries(gc).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([g, c]) => `${g}(${c})`);
+        };
+        const topAI3 = topGroups(recent3AI);
+        const topFIN3 = topGroups(recent3FIN);
+
+        // 元大涵蓋子分類
+        const yuantaRows = CAP.filter(r => r['集團'] === '元大');
+        const yuantaCaps = new Set(yuantaRows.map(r => r['能力項ID']));
+        const yuantaCoverage = yuantaCaps.size;
+        const yuantaAI = [...yuantaCaps].filter(id => AI_IDS.has(id)).length;
+        const aiTotal = TAX.filter(t => t['側'] === 'AI').length;
+        const finTotal = TAX.filter(t => t['側'] === '數金').length;
+
+        const card = (icon, label, value, sub, split) => `
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 flex items-start gap-3">
+                <div class="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">${icon}</div>
+                <div class="min-w-0">
+                    <div class="text-xs text-gray-400 mb-0.5">${label}</div>
+                    <div class="text-lg font-bold text-gray-800">${value}</div>
+                    ${sub ? `<div class="text-xs text-gray-500 mt-0.5">${sub}</div>` : ''}
+                    ${split || ''}
+                </div>
+            </div>`;
+
+        host.innerHTML =
+            card(`<svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/></svg>`, `本月新增佐證（${thisMonth.replace('-', '/')}）`, `${thisMonthCount} 條`,
+                 thisMonthCount ? `涵蓋 ${new Set(thisMonthRows.map(r => r['集團'])).size} 個集團` : '本月尚無新增',
+                 thisMonthCount ? splitBadge(sideSplit(thisMonthRows)) : '')
+          + card(`<svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>`, '近三月新增佐證', `${recent3Count} 條`, '',
+                 recent3Count ? `${splitBadge(sideSplit(recent3))}
+                    <div class="mt-1.5 space-y-0.5 text-[11px] text-gray-500">
+                        ${topAI3.length ? `<div><span style="color:${AI_FILL}">▸ AI 最活躍：</span>${topAI3.join('、')}</div>` : ''}
+                        ${topFIN3.length ? `<div><span style="color:${FIN_FILL}">▸ 數金最活躍：</span>${topFIN3.join('、')}</div>` : ''}
+                    </div>` : '')
+          + card(`<svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>`, '元大涵蓋能力子分類', `${yuantaCoverage} / ${TAX.length} 項`,
+                 `涵蓋率 ${Math.round(yuantaCoverage / TAX.length * 100)}%`,
+                 `<div class="flex items-center gap-2 mt-1">
+                    <span class="inline-flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded" style="color:${AI_FILL};background:${AI_FILL}1a">${svgAI} AI ${yuantaAI}/${aiTotal}</span>
+                    <span class="inline-flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded" style="color:${FIN_FILL};background:${FIN_FILL}1a">${svgFin} 數金 ${yuantaCoverage - yuantaAI}/${finTotal}</span>
+                 </div>`);
+    }
+
+    function renderMatrix(side) {
+        if (side) currentSide = side;
+        const filteredTax = TAX.filter(t => t['側'] === currentSide);
         const host = document.getElementById('matrixHost');
         let h = '<table class="matrix text-xs border-separate" style="border-spacing:3px;"><thead><tr>'
               + '<th class="sticky-col text-left px-2 py-1 font-semibold text-gray-500">能力項</th>';
@@ -324,16 +449,11 @@
         });
         h += '</tr></thead><tbody>';
 
-        let side = null;
-        TAX.forEach(t => {
-            if (t['側'] !== side) {
-                side = t['側'];
-                h += `<tr><td class="sticky-col pt-3 pb-1 text-[11px] font-bold tracking-widest text-gray-400">
-                        ${side === 'AI' ? 'AI 推進' : '其他數位金融'}</td>
-                      <td colspan="${GROUP_ORDER.length + 1}"></td></tr>`;
-            }
+        filteredTax.forEach(t => {
             h += `<tr><td class="sticky-col px-2 py-1 whitespace-nowrap font-medium text-gray-700" title="${t['定義']}">
-                    <span class="text-gray-400 mr-1">${t['能力項ID']}</span>${t['能力項']}</td>`;
+                    <span class="cap-label" onclick="showCapCompare('${t['能力項ID']}')" title="點擊查看 12 家橫向比較">
+                        <span class="text-gray-400 mr-1">${t['能力項ID']}</span>${t['能力項']}
+                    </span></td>`;
             GROUP_ORDER.forEach(g => {
                 const c = cellOf(g, t['能力項ID']);
                 const detail = c ? `${c.status}｜${c.hits} 條佐證` : '未見佐證';
@@ -348,12 +468,36 @@
         });
         h += '</tbody></table>';
         host.innerHTML = h;
+
+        // 更新子 tab 視覺狀態
+        document.querySelectorAll('.side-tab').forEach(b => {
+            const on = b.dataset.side === currentSide;
+            b.classList.toggle('bg-white', on);
+            b.classList.toggle('shadow-sm', on);
+            b.classList.toggle('text-blue-900', on);
+            b.classList.toggle('text-gray-500', !on);
+        });
+
+        // 切換側時，收合已展開的面板
+        const capBox = document.getElementById('capCompare');
+        if (capBox) {
+            capBox.classList.add('hidden');
+            capBox.dataset.capId = '';
+        }
+        const cellBox = document.getElementById('cellDetail');
+        if (cellBox) {
+            cellBox.classList.add('hidden');
+        }
     }
 
     function evidenceHTML(rows, hideSub) {
         return rows.map(r => {
             const stale = monthsAgo(r['最近佐證日期']) >= STALE_MONTHS;
-            // 綠／藍在本站專指 AI 側／數金側，佐證卡片本身一律中性灰（宣示中維持琥珀）
+            // 找出同一則新聞對應的所有能力項（同 URL＋說明＋子公司）
+            const related = CAP.filter(x => x['子公司'] === r['子公司'] && x['說明'] === r['說明'] && x['佐證URL'] === r['佐證URL']);
+            const caps = [];
+            related.forEach(x => { const t = TAX.find(tx => tx['能力項ID'] === x['能力項ID']); if (t && !caps.some(c => c['能力項ID'] === t['能力項ID'])) caps.push(t); });
+            // 綠／藍在本站專指 AI 面／數金面，佐證卡片本身一律中性灰（宣示中維持琥珀）
             return `<div class="border-l-2 ${r['狀態'] === '已導入' ? 'border-slate-300' : 'border-amber-400'} pl-3 py-1.5 ${stale ? 'stale' : ''}">
                 <div class="flex flex-wrap items-center gap-2 text-xs mb-0.5">
                     ${hideSub ? '' : `<span class="px-1.5 py-0.5 rounded bg-gray-100 font-medium">${r['子公司']}</span>`}
@@ -365,6 +509,7 @@
                 <p class="text-sm text-gray-700 leading-relaxed">${r['說明']}</p>
                 <a href="${r['佐證URL']}" target="_blank" rel="noopener"
                    class="text-xs text-cyan-800 hover:text-cyan-900 underline decoration-cyan-200 hover:decoration-cyan-500 underline-offset-2 break-all">↗ ${r['佐證標題']}（${r['最近佐證日期']}）</a>
+                ${caps.length ? hashTags(caps) : ''}
             </div>`;
         }).join('');
     }
@@ -390,7 +535,7 @@
 
     const newsHTML = (items, hideSub, head) => groupNews(items).map(({ r, d, caps }) => `<div class="py-1">
             ${head ? `<div class="text-xs text-gray-500 mb-0.5">${d}｜${r['子公司']}${d === r['最近佐證日期'] ? '' : '・先前的推進紀錄'}</div>` : ''}
-            ${evidenceHTML([r], hideSub)}${hashTags(caps)}</div>`).join('');
+            ${evidenceHTML([r], hideSub)}</div>`).join('');
 
     const byLatest = rows => rows.slice()
         .sort((x, y) => (y['最近佐證日期'] || '').localeCompare(x['最近佐證日期'] || ''))
@@ -413,6 +558,131 @@
             ${c ? `<div class="space-y-2">${evidenceHTML(c.rows)}</div>`
                 : `<p class="text-sm text-gray-500">未見佐證——公開資訊中尚未看到 ${group} 在此能力項的動作。這不等於對方未導入。</p>`}`;
         box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        // 關掉能力項橫向比較（避免兩個面板同時開）
+        document.getElementById('capCompare').classList.add('hidden');
+        document.querySelectorAll('.cap-label.active').forEach(el => el.classList.remove('active'));
+    }
+
+    // ── 能力項橫向比較（12 家水平條形圖）────────────────────────────
+    function showCapCompare(capId) {
+        const t = TAX.find(x => x['能力項ID'] === capId);
+        if (!t) return;
+        const box = document.getElementById('capCompare');
+        // 再點同一個能力項 → 收合
+        if (!box.classList.contains('hidden') && box.dataset.capId === capId) {
+            box.classList.add('hidden');
+            box.dataset.capId = '';
+            document.querySelectorAll('.cap-label.active').forEach(el => el.classList.remove('active'));
+            return;
+        }
+        box.dataset.capId = capId;
+        // 關掉格子佐證面板
+        document.getElementById('cellDetail').classList.add('hidden');
+        // 高亮當前選中的能力項名稱
+        document.querySelectorAll('.cap-label.active').forEach(el => el.classList.remove('active'));
+        const clicked = document.querySelector(`.cap-label[onclick*="'${capId}'"]`);
+        if (clicked) clicked.classList.add('active');
+
+        // 收集 12 家數據
+        const data = GROUP_ORDER.map(g => {
+            const c = cellOf(g, capId);
+            return { group: g, hits: c ? c.hits : 0, status: c ? c.status : '未見佐證', latest: c ? c.latest : '', subs: c ? c.subs : 0 };
+        });
+        const maxHits = Math.max(1, ...data.map(d => d.hits));
+
+        // 狀態 badge
+        const statusBadge = s => {
+            if (s === '已導入') return '<span class="text-[11px] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700">已導入</span>';
+            if (s === '宣示中') return '<span class="text-[11px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-700">宣示中</span>';
+            return '<span class="text-[11px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-400">未見佐證</span>';
+        };
+
+        // bar 顏色
+        const barColor = d => {
+            if (d.status === '未見佐證') return '#e5e7eb';
+            if (d.status === '宣示中') return '#fbbf24';
+            return heatColor(d.hits);
+        };
+
+        const rows = data.map((d, idx) => {
+            const pct = d.hits > 0 ? Math.max(d.hits / maxHits * 100, 4) : 2;
+            const isYuanta = d.group === '元大';
+            return `<div class="cap-compare-row" style="cursor:pointer" onclick="toggleCapEvidence('${d.group}','${capId}',${idx})" title="點擊展開 ${d.group} 的佐證">
+                <div class="cap-compare-name ${isYuanta ? 'is-yuanta' : ''}" onclick="event.stopPropagation();showCompany('${d.group}')" title="點擊進入 ${d.group} 詳頁">${d.group}</div>
+                <div class="cap-bar-wrap">
+                    <div class="cap-bar" style="width:${pct}%;background:${barColor(d)};${isYuanta ? 'box-shadow:0 0 0 2px #ea580c33;' : ''}">
+                        ${d.hits > 0 ? `<span class="cap-bar-label" style="color:${d.hits >= 3 ? '#fff' : '#374151'}">${d.hits} 條</span>` : ''}
+                    </div>
+                </div>
+                <div class="flex items-center gap-1">${statusBadge(d.status)}</div>
+            </div>
+            <div id="capEv-${idx}" class="hidden"></div>`;
+        }).join('');
+
+        // 統計摘要
+        const adopted = data.filter(d => d.status === '已導入').length;
+        const claimed = data.filter(d => d.status === '宣示中').length;
+        const none = data.filter(d => d.status === '未見佐證').length;
+        const totalHits = data.reduce((s, d) => s + d.hits, 0);
+        const topGroup = data.reduce((a, b) => a.hits >= b.hits ? a : b);
+
+        box.classList.remove('hidden');
+        box.innerHTML = `
+            <div class="flex items-start justify-between gap-3 mb-3">
+                <div>
+                    <h3 class="font-semibold text-gray-800 flex items-center gap-2">
+                        <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h12M4 12h16M4 18h8"/></svg>
+                        ${t['能力項']}｜12 家橫向比較
+                    </h3>
+                    <p class="text-xs text-gray-500 mt-0.5">${t['定義']}</p>
+                </div>
+                <button onclick="document.getElementById('capCompare').classList.add('hidden');document.querySelectorAll('.cap-label.active').forEach(el=>el.classList.remove('active'))"
+                        class="text-gray-400 hover:text-gray-600 text-sm flex-shrink-0">✕</button>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
+                <div class="rounded-lg bg-emerald-50 px-3 py-2">
+                    <div class="text-[11px] text-emerald-600">已導入</div>
+                    <div class="text-sm font-bold text-emerald-700">${adopted} 家</div>
+                </div>
+                <div class="rounded-lg bg-amber-50 px-3 py-2">
+                    <div class="text-[11px] text-amber-600">宣示中</div>
+                    <div class="text-sm font-bold text-amber-700">${claimed} 家</div>
+                </div>
+                <div class="rounded-lg bg-gray-50 px-3 py-2">
+                    <div class="text-[11px] text-gray-500">未見佐證</div>
+                    <div class="text-sm font-bold text-gray-600">${none} 家</div>
+                </div>
+                <div class="rounded-lg bg-blue-50 px-3 py-2">
+                    <div class="text-[11px] text-blue-500">佐證總數</div>
+                    <div class="text-sm font-bold text-blue-700">${totalHits} 條</div>
+                </div>
+            </div>
+            <div class="mb-2">${rows}</div>`;
+        box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function toggleCapEvidence(group, capId, idx) {
+        const el = document.getElementById('capEv-' + idx);
+        if (!el) return;
+        if (!el.classList.contains('hidden')) {
+            el.classList.add('hidden');
+            el.innerHTML = '';
+            return;
+        }
+        // 關閉其他已展開的佐證
+        document.querySelectorAll('[id^="capEv-"]').forEach(x => { x.classList.add('hidden'); x.innerHTML = ''; });
+        const c = cellOf(group, capId);
+        const t = TAX.find(x => x['能力項ID'] === capId) || {};
+        el.classList.remove('hidden');
+        el.innerHTML = `<div class="border border-gray-200 rounded-lg bg-gray-50 p-3 mb-1">
+            <div class="flex items-start justify-between gap-2 mb-2">
+                <h4 class="font-semibold text-sm text-gray-700">${group}｜${t['能力項'] || capId}</h4>
+                <button onclick="event.stopPropagation();document.getElementById('capEv-${idx}').classList.add('hidden');document.getElementById('capEv-${idx}').innerHTML=''"
+                        class="text-gray-400 hover:text-gray-600 text-xs">✕</button>
+            </div>
+            ${c ? `<div class="space-y-2">${evidenceHTML(c.rows)}</div>`
+                : `<p class="text-sm text-gray-500">未見佐證——公開資訊中尚未看到 ${group} 在此能力項的動作。這不等於對方未導入。</p>`}
+        </div>`;
     }
 
     // 佐證時間線：按月分欄，每則佐證一個點（AI／數金分色），同月往上疊
@@ -539,7 +809,7 @@
                 return `<div class="relative pb-3">
                     <span class="absolute -left-[21px] top-1.5 w-2 h-2 rounded-full ring-2 ring-white" style="background:${c}"></span>
                     <div class="text-[11px] text-gray-400 mb-0.5">${r['最近佐證日期']}</div>
-                    ${evidenceHTML([r], true)}${hashTags(caps)}</div>`;
+                    ${evidenceHTML([r], true)}</div>`;
             }).join('')}</div>`;
             return `<div class="bg-white rounded-xl shadow-sm border ${b.isGroup ? 'border-blue-200' : 'border-gray-200'} p-4 sm:p-5">
                         <div class="flex flex-wrap items-center gap-2 mb-1">
@@ -552,8 +822,8 @@
                         <div class="sm:flex sm:items-start sm:gap-4">
                             <div class="min-w-0 flex-1">${caps}</div>
                             <div class="flex-shrink-0 mx-auto sm:mx-0 sm:w-96 order-first sm:order-none grid grid-cols-2 gap-1">
-                                <div><div class="text-[11px] text-center" style="color:${AI_FILL}">AI 側</div>${radarSVG(scoresFrom(b.rows, 'AI'), 'AI', 190, { pad: 44, rows: b.rows })}</div>
-                                <div><div class="text-[11px] text-center" style="color:${FIN_FILL}">數金側</div>${radarSVG(scoresFrom(b.rows, '數金'), '數金', 190, { pad: 44, rows: b.rows })}</div>
+                                <div><div class="text-[11px] text-center" style="color:${AI_FILL}">AI 面</div>${radarSVG(scoresFrom(b.rows, 'AI'), 'AI', 190, { pad: 44, rows: b.rows })}</div>
+                                <div><div class="text-[11px] text-center" style="color:${FIN_FILL}">數金面</div>${radarSVG(scoresFrom(b.rows, '數金'), '數金', 190, { pad: 44, rows: b.rows })}</div>
                             </div>
                         </div>
                     </div>`;
@@ -624,7 +894,7 @@
 
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-5 mb-4">
                 <h3 class="font-semibold text-gray-700 text-sm mb-1">集團能力輪廓</h3>
-                <p class="text-xs text-gray-400 mb-2">各事業體疊圖比較，點事業體可開關。半徑＝該能力項的佐證條數</p>
+                <p class="text-xs text-gray-400 mb-2">各事業體疊圖比較，點事業體可開關。半徑＝該能力項的佐證條數。<span class="text-blue-500">點擊雷達上的能力項名稱可展開佐證</span></p>
                 <div class="flex flex-wrap gap-1.5 mb-3">${ordered.map(b => {
                     const on = pickedSubs.includes(b.name), c = colorOf(b.name);
                     return `<button onclick="toggleSub('${b.name}')" class="px-2.5 py-1 rounded-lg text-xs font-semibold border transition"
@@ -632,16 +902,17 @@
                 }).join('')}</div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <div class="text-xs font-semibold text-center mb-1" style="color:${AI_FILL}">AI 側</div>
-                        ${radarSVG(subSeries('AI'), 'AI', 340, { pad: 62, reference: median.AI })}
+                        <div class="text-xs font-semibold text-center mb-1" style="color:${AI_FILL}">AI 面</div>
+                        ${radarSVG(subSeries('AI'), 'AI', 340, { pad: 62, reference: median.AI, clickable: g })}
                     </div>
                     <div>
-                        <div class="text-xs font-semibold text-center mb-1" style="color:${FIN_FILL}">數金側</div>
-                        ${radarSVG(subSeries('數金'), '數金', 340, { pad: 62, reference: median['數金'] })}
+                        <div class="text-xs font-semibold text-center mb-1" style="color:${FIN_FILL}">數金面</div>
+                        ${radarSVG(subSeries('數金'), '數金', 340, { pad: 62, reference: median['數金'], clickable: g })}
                     </div>
                 </div>
                 ${radarLegend(pickedSubs.map(n => `<span class="flex items-center gap-1"><span class="w-3 h-3 rounded-sm inline-block" style="background:${colorOf(n)};opacity:.8"></span>${n}</span>`).join('')
                     + '<span class="flex items-center gap-1"><span class="w-4 border-t border-dashed border-gray-400 inline-block"></span>同業中位數</span>')}
+                <div id="radarCapDetail" class="hidden mt-4"></div>
             </div>
 
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-5 mb-4">
@@ -649,10 +920,26 @@
                 <div class="mt-2">${timelineHTML(gRows)}</div>
             </div>
 
-            <div class="space-y-4">${ordered.map(subBlock).join('')}</div>`;
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-5 mb-4">
+                <h3 class="font-semibold text-gray-700 text-sm mb-2">子公司佐證明細</h3>
+                <div class="flex flex-wrap gap-1.5 mb-3" id="subTabs">
+                    <button onclick="filterSub('__all__')" class="sub-tab active px-3 py-1.5 rounded-lg text-xs font-semibold">全部</button>
+                    ${ordered.map(b => {
+                        const c = colorOf(b.name);
+                        return `<button onclick="filterSub('${b.name.replace(/'/g, "\\'")}')"
+                            class="sub-tab px-3 py-1.5 rounded-lg text-xs font-semibold"
+                            data-sub="${b.name}"
+                            data-color="${c}">${b.isMain ? '★ ' : ''}${b.name}
+                            <span class="ml-1 text-[10px] opacity-70">${groupNews(byLatest(b.rows)).length}</span></button>`;
+                    }).join('')}
+                </div>
+            </div>
+
+            <div id="subCards" class="space-y-4">${ordered.map(subBlock).join('')}</div>`;
     }
 
     let pickedSubs = null;      // 詳頁疊圖的事業體；null＝預設全選
+    let currentSubFilter = '__all__';   // 子公司佐證明細 tab 篩選
     function toggleSub(name) {
         const i = pickedSubs.indexOf(name);
         if (i >= 0) pickedSubs.splice(i, 1);
@@ -660,9 +947,71 @@
         renderCompany();
     }
 
+    // ── 雷達圖能力項點擊 → 展開佐證面板 ──────────────────────────
+    function showRadarCap(group, capId) {
+        const box = document.getElementById('radarCapDetail');
+        if (!box) return;
+        const t = TAX.find(x => x['能力項ID'] === capId);
+        if (!t) return;
+        // 再點同一個 → 收合
+        if (!box.classList.contains('hidden') && box.dataset.capId === capId) {
+            box.classList.add('hidden');
+            box.dataset.capId = '';
+            return;
+        }
+        box.dataset.capId = capId;
+        const c = cellOf(group, capId);
+        const side = t['側'];
+        const sideColor = side === 'AI' ? AI_FILL : FIN_FILL;
+        box.classList.remove('hidden');
+        box.innerHTML = `
+            <div class="border rounded-lg p-4" style="border-color:${sideColor}40;background:${sideColor}08">
+                <div class="flex items-start justify-between gap-3 mb-3">
+                    <div>
+                        <h4 class="font-semibold text-gray-800 flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full inline-block" style="background:${sideColor}"></span>
+                            ${group}｜${t['能力項']}
+                            <span class="text-xs px-1.5 py-0.5 rounded" style="color:${sideColor};background:${sideColor}1a">${side} 側</span>
+                        </h4>
+                        <p class="text-xs text-gray-500 mt-0.5">${t['定義']}</p>
+                    </div>
+                    <button onclick="document.getElementById('radarCapDetail').classList.add('hidden');document.getElementById('radarCapDetail').dataset.capId=''"
+                            class="text-gray-400 hover:text-gray-600 text-sm flex-shrink-0">✕</button>
+                </div>
+                ${c ? `<div class="space-y-2">${evidenceHTML(c.rows)}</div>` 
+                    : `<p class="text-sm text-gray-500">未見佐證——公開資訊中尚未看到 ${group} 在此能力項的動作。這不等於對方未導入。</p>`}
+            </div>`;
+        box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    // ── 子公司 sub-tab 篩選 ──────────────────────────────────────
+    function filterSub(name) {
+        currentSubFilter = name;
+        // 更新 tab 視覺
+        document.querySelectorAll('#subTabs .sub-tab').forEach(btn => {
+            const isAll = name === '__all__';
+            const btnName = btn.textContent.trim().replace(/^★\s*/, '').replace(/\s*\d+$/, '');
+            const on = isAll ? btn.textContent.includes('全部') : btn.dataset.sub === name;
+            btn.classList.toggle('active', on);
+        });
+        // 顯示/隱藏卡片
+        const cards = document.querySelectorAll('#subCards > div');
+        cards.forEach(card => {
+            if (name === '__all__') {
+                card.style.display = '';
+            } else {
+                // 從卡片的 h3 取子公司名稱
+                const h3 = card.querySelector('h3');
+                const cardName = h3 ? h3.textContent.trim().replace(/^★\s*/, '') : '';
+                card.style.display = cardName === name ? '' : 'none';
+            }
+        });
+    }
+
     function showCompany(g) {
         currentCompany = g;
         pickedSubs = null;          // null＝尚未選過，renderCompany 會預設全選
+        currentSubFilter = '__all__';   // 重設子公司篩選
         switchView('company');
         renderCompanyTabs();
         renderCompany();
@@ -686,6 +1035,8 @@
         document.getElementById('mobileMenu').classList.toggle('hidden'));
     document.querySelectorAll('.view-tab').forEach(b =>
         b.addEventListener('click', () => switchView(b.dataset.view)));
+    document.querySelectorAll('.side-tab').forEach(b =>
+        b.addEventListener('click', () => renderMatrix(b.dataset.side)));
 
     (async function init() {
         try {
@@ -706,7 +1057,8 @@
 
         document.getElementById('heatLegend').innerHTML =
             HEAT.map((c, i) => `<span class="w-4 h-4 rounded inline-block" style="background:${c}" title="${i + 1}${i === HEAT.length - 1 ? ' 則以上' : ' 則佐證'}"></span>`).join('');
-        renderMatrix();
+        renderMatrixStats();
+        renderMatrix('AI');
         renderCompanyTabs();
         renderCompany();
         // 手機直接進單家視圖：矩陣在窄螢幕不好讀
