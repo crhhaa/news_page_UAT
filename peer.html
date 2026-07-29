@@ -819,11 +819,11 @@
                             <span class="text-xs text-gray-400">${new Set(b.rows.map(r => r['能力項ID'])).size} 項能力・${groupNews(items).length} 則新聞</span>
                         </div>
                         ${b.isGroup ? '<p class="text-xs text-gray-400 mb-1">掛在金控層的跨子公司動作，未再歸屬到個別子公司</p>' : ''}
-                        <div class="sm:flex sm:items-start sm:gap-4">
+                        <div class="flex flex-col sm:flex-row sm:items-start sm:gap-4">
                             <div class="min-w-0 flex-1">${caps}</div>
-                            <div class="flex-shrink-0 mx-auto sm:mx-0 sm:w-96 order-first sm:order-none grid grid-cols-2 gap-1">
-                                <div><div class="text-[11px] text-center" style="color:${AI_FILL}">AI 面</div>${radarSVG(scoresFrom(b.rows, 'AI'), 'AI', 190, { pad: 44, rows: b.rows })}</div>
-                                <div><div class="text-[11px] text-center" style="color:${FIN_FILL}">數金面</div>${radarSVG(scoresFrom(b.rows, '數金'), '數金', 190, { pad: 44, rows: b.rows })}</div>
+                            <div class="flex-shrink-0 mx-auto sm:mx-0 sm:w-96 order-first sm:order-none grid grid-cols-2 gap-1 mb-4 sm:mb-0">
+                                <div><div class="text-[11px] text-center" style="color:${AI_FILL}">AI 側</div>${radarSVG(scoresFrom(b.rows, 'AI'), 'AI', 190, { pad: 44, rows: b.rows })}</div>
+                                <div><div class="text-[11px] text-center" style="color:${FIN_FILL}">數金側</div>${radarSVG(scoresFrom(b.rows, '數金'), '數金', 190, { pad: 44, rows: b.rows })}</div>
                             </div>
                         </div>
                     </div>`;
