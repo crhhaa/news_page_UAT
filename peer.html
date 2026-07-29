@@ -146,10 +146,10 @@
             <!-- 摘要統計卡 -->
             <div id="matrixStats" class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4"></div>
 
-            <!-- AI側 / 數金側 子 Tab -->
+            <!-- AI面 / 數金面 子 Tab -->
             <div class="flex items-center gap-1 bg-gray-100 rounded-xl p-1 mb-4 w-fit">
-                <button class="side-tab px-4 py-1.5 rounded-lg text-sm font-semibold transition-all flex items-center gap-1.5" data-side="AI"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/></svg>AI 側</button>
-                <button class="side-tab px-4 py-1.5 rounded-lg text-sm font-semibold transition-all flex items-center gap-1.5" data-side="數金"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>數金側</button>
+                <button class="side-tab px-4 py-1.5 rounded-lg text-sm font-semibold transition-all flex items-center gap-1.5" data-side="AI"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/></svg>AI 面</button>
+                <button class="side-tab px-4 py-1.5 rounded-lg text-sm font-semibold transition-all flex items-center gap-1.5" data-side="數金"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>數金面</button>
             </div>
 
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-5 matrix-wrap">
@@ -268,7 +268,7 @@
     };
     const SIDE_COLOR = { AI: { fill: '#059669', line: '#047857' }, '數金': { fill: '#2563eb', line: '#1d4ed8' } };
     const AI_FILL = SIDE_COLOR.AI.fill, FIN_FILL = SIDE_COLOR['數金'].fill;
-    const axesOf = side => TAX.filter(t => t['側'] === side);
+    const axesOf = side => TAX.filter(t => t['面'] === side);
 
     // rows → 該側每個能力項的「佐證條數」（雷達半徑的基底，與熱力圖同一個量）
     const RADAR_MAX = 5;                       // 固定刻度：5 條佐證以上就到最外圈
@@ -358,7 +358,7 @@
     // 計算一組佐證 rows 中 AI 面 vs 數金面各幾條
     const AI_IDS = new Set();
     const FIN_IDS = new Set();
-    function initSideIds() { TAX.forEach(t => (t['側'] === 'AI' ? AI_IDS : FIN_IDS).add(t['能力項ID'])); }
+    function initSideIds() { TAX.forEach(t => (t['面'] === 'AI' ? AI_IDS : FIN_IDS).add(t['能力項ID'])); }
     const sideSplit = rows => {
         const ai = rows.filter(r => AI_IDS.has(r['能力項ID'])).length;
         return { ai, fin: rows.length - ai };
@@ -402,8 +402,8 @@
         const yuantaCaps = new Set(yuantaRows.map(r => r['能力項ID']));
         const yuantaCoverage = yuantaCaps.size;
         const yuantaAI = [...yuantaCaps].filter(id => AI_IDS.has(id)).length;
-        const aiTotal = TAX.filter(t => t['側'] === 'AI').length;
-        const finTotal = TAX.filter(t => t['側'] === '數金').length;
+        const aiTotal = TAX.filter(t => t['面'] === 'AI').length;
+        const finTotal = TAX.filter(t => t['面'] === '數金').length;
 
         const card = (icon, label, value, sub, split) => `
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 flex items-start gap-3">
@@ -436,7 +436,7 @@
 
     function renderMatrix(side) {
         if (side) currentSide = side;
-        const filteredTax = TAX.filter(t => t['側'] === currentSide);
+        const filteredTax = TAX.filter(t => t['面'] === currentSide);
         const host = document.getElementById('matrixHost');
         let h = '<table class="matrix text-xs border-separate" style="border-spacing:3px;"><thead><tr>'
               + '<th class="sticky-col text-left px-2 py-1 font-semibold text-gray-500">能力項</th>';
@@ -528,7 +528,7 @@
     }
 
     const hashTags = caps => `<div class="flex flex-wrap gap-1 mt-1 pl-3">${caps.map(t => {
-        const c = t['側'] === 'AI' ? AI_FILL : FIN_FILL;   // 與雷達圖、時間線同色
+        const c = t['面'] === 'AI' ? AI_FILL : FIN_FILL;   // 與雷達圖、時間線同色
         return `<span class="text-[11px] px-1.5 py-0.5 rounded" title="${t['能力項']}｜${t['定義']}"
                  style="color:${c};background:${c}1a">#${(SHORT_NAME[t['能力項ID']] || t['能力項']).replace(/\n/g, '')}</span>`;
     }).join('')}</div>`;
@@ -805,7 +805,7 @@
             const items = byLatest(b.rows);
             // 左側一條細時間軸：每則新聞一個點（顏色取第一個能力項的側），旁邊標日期
             const caps = `<div class="tl-rail border-l border-gray-200 ml-1 pl-4">${groupNews(items).map(({ r, caps }) => {
-                const c = (caps[0] || {})['側'] === 'AI' ? AI_FILL : FIN_FILL;
+                const c = (caps[0] || {})['面'] === 'AI' ? AI_FILL : FIN_FILL;
                 return `<div class="relative pb-3">
                     <span class="absolute -left-[21px] top-1.5 w-2 h-2 rounded-full ring-2 ring-white" style="background:${c}"></span>
                     <div class="text-[11px] text-gray-400 mb-0.5">${r['最近佐證日期']}</div>
@@ -822,8 +822,8 @@
                         <div class="flex flex-col sm:flex-row sm:items-start sm:gap-4">
                             <div class="min-w-0 flex-1">${caps}</div>
                             <div class="flex-shrink-0 mx-auto sm:mx-0 sm:w-96 order-first sm:order-none grid grid-cols-2 gap-1 mb-4 sm:mb-0">
-                                <div><div class="text-[11px] text-center" style="color:${AI_FILL}">AI 側</div>${radarSVG(scoresFrom(b.rows, 'AI'), 'AI', 190, { pad: 44, rows: b.rows })}</div>
-                                <div><div class="text-[11px] text-center" style="color:${FIN_FILL}">數金側</div>${radarSVG(scoresFrom(b.rows, '數金'), '數金', 190, { pad: 44, rows: b.rows })}</div>
+                                <div><div class="text-[11px] text-center" style="color:${AI_FILL}">AI 面</div>${radarSVG(scoresFrom(b.rows, 'AI'), 'AI', 190, { pad: 44, rows: b.rows })}</div>
+                                <div><div class="text-[11px] text-center" style="color:${FIN_FILL}">數金面</div>${radarSVG(scoresFrom(b.rows, '數金'), '數金', 190, { pad: 44, rows: b.rows })}</div>
                             </div>
                         </div>
                     </div>`;
@@ -961,7 +961,7 @@
         }
         box.dataset.capId = capId;
         const c = cellOf(group, capId);
-        const side = t['側'];
+        const side = t['面'];
         const sideColor = side === 'AI' ? AI_FILL : FIN_FILL;
         box.classList.remove('hidden');
         box.innerHTML = `
@@ -971,7 +971,7 @@
                         <h4 class="font-semibold text-gray-800 flex items-center gap-2">
                             <span class="w-2 h-2 rounded-full inline-block" style="background:${sideColor}"></span>
                             ${group}｜${t['能力項']}
-                            <span class="text-xs px-1.5 py-0.5 rounded" style="color:${sideColor};background:${sideColor}1a">${side} 側</span>
+                            <span class="text-xs px-1.5 py-0.5 rounded" style="color:${sideColor};background:${sideColor}1a">${side} 面</span>
                         </h4>
                         <p class="text-xs text-gray-500 mt-0.5">${t['定義']}</p>
                     </div>
