@@ -377,6 +377,15 @@ a{color:inherit}
 .panorama-filter-hint{font-size:.625rem;color:var(--muted)}
 .panorama-filter-group+.panorama-filter-group{margin-top:.75rem;padding-top:.75rem;border-top:1px solid var(--rule)}
 .panorama-filter-group-label{display:block;font-size:.625rem;font-weight:750;color:var(--muted);margin-bottom:.375rem}
+.panorama-filter.is-compact{padding:.625rem .75rem;background:#fff;border:1px solid var(--rule)}
+.panorama-filter.is-compact .panorama-filter-group{display:flex;align-items:center;gap:.625rem}
+.panorama-filter.is-compact .panorama-filter-group-label{margin:0;white-space:nowrap}
+.panorama-advanced{margin-top:.625rem}
+.panorama-advanced>summary{display:inline-flex;align-items:center;gap:.375rem;font-size:.6875rem;font-weight:700;color:var(--muted);cursor:pointer;list-style:none}
+.panorama-advanced>summary::-webkit-details-marker{display:none}
+.panorama-advanced>summary::after{content:"＋";font-size:.75rem}
+.panorama-advanced[open]>summary::after{content:"－"}
+.panorama-advanced-body{margin-top:.625rem;padding:.625rem;background:var(--rule-soft);border-radius:.5rem}
 .strategy-section{margin-top:1.125rem;padding-top:1.125rem;border-top:1px solid var(--rule)}
 .strategy-section:first-of-type{margin-top:1rem;padding-top:0;border-top:0}
 .strategy-section-head{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:.75rem}
@@ -384,9 +393,18 @@ a{color:inherit}
 .strategy-section-title{font-size:.875rem;font-weight:750;color:var(--ink);margin-top:.125rem}
 .strategy-section-note{font-size:.6875rem;color:var(--muted);margin-top:.125rem;max-width:50rem}
 /* 單一策略地圖：縱軸把六大場景展開為子公司泳道，橫軸共用季度。 */
-.pm-chart{overflow-x:auto;margin-top:.875rem;border:1px solid var(--rule);border-radius:.75rem}
-.pm-inner{min-width:46rem}
-.pm-row{display:grid;grid-template-columns:13rem minmax(32rem,1fr);align-items:stretch;border-bottom:1px solid var(--rule-soft)}
+.pm-scene-toolbar{display:flex;align-items:center;gap:.375rem;flex-wrap:wrap;margin-top:.875rem;padding:.625rem .75rem;border:1px solid var(--rule);border-radius:.625rem;background:#fff}
+.pm-scene-toolbar-label{font-size:.625rem;font-weight:800;letter-spacing:.05em;color:var(--muted);margin-right:.25rem}
+.pm-scene-filter{display:inline-flex;align-items:center;gap:.35rem;padding:.3rem .5rem;border:1px solid transparent;border-radius:999px;font-size:.6875rem;color:var(--ink-2);transition:.15s}
+.pm-scene-filter i{width:7px;height:7px;border-radius:50%;background:var(--sc,var(--ink-2));box-shadow:0 0 0 2px var(--tint,#fff)}
+.pm-scene-count{min-width:1.1rem;padding:0 .3rem;border-radius:999px;background:var(--rule-soft);color:var(--muted);
+  font-size:.625rem;font-weight:750;line-height:1.45;text-align:center;font-variant-numeric:tabular-nums}
+.pm-scene-filter.on .pm-scene-count{background:rgba(255,255,255,.72);color:inherit}
+.pm-scene-filter:hover{background:var(--rule-soft)}
+.pm-scene-filter.on{border-color:var(--sc,var(--navy));background:var(--tint,#eff6ff);color:var(--ink);font-weight:750}
+.pm-chart{overflow-x:auto;margin-top:.625rem;border:1px solid var(--rule);border-radius:.75rem;background:#fff}
+.pm-inner{min-width:48rem}
+.pm-row{display:grid;grid-template-columns:14rem minmax(34rem,1fr);align-items:stretch;border-bottom:1px solid var(--rule-soft)}
 .pm-row:last-child{border-bottom:0}
 .pm-axis{position:sticky;top:0;z-index:4;background:#fff;border-bottom:1px solid var(--rule)}
 .pm-axis-label,.pm-label{position:sticky;left:0;z-index:2;background:#fff;border-right:1px solid var(--rule-soft)}
@@ -395,6 +413,8 @@ a{color:inherit}
 .pm-label-cols span:last-child{padding-left:.75rem;border-left:1px solid var(--rule-soft)}
 .pm-axis-track,.pm-track{display:grid;position:relative;align-items:center}
 .pm-quarter{text-align:center;padding:.625rem .125rem;font-size:.625rem;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.pm-quarter.is-year-start{border-left:1px solid #cbd5e1;color:var(--ink-2);font-weight:750}
+.pm-quarter.is-latest{background:#f8fafc;color:var(--navy)}
 .pm-scene{background:#f8fafc;border-top:1px solid var(--rule)}
 .pm-scene:first-of-type{border-top:0}
 .pm-scene .pm-label{background:#f8fafc;padding:.625rem .875rem}
@@ -403,18 +423,19 @@ a{color:inherit}
 .pm-scene-meta{display:block;font-size:.625rem;color:var(--muted);margin-top:.125rem}
 .pm-scene-track{display:flex;align-items:center;padding:.375rem .625rem;background:#f8fafc}
 .pm-scene-summary{font-size:.625rem;color:var(--muted)}
-.pm-lane{min-height:2.75rem}
+.pm-lane{min-height:3.25rem}
 .pm-lane.is-empty{opacity:.45}
 .pm-lane:hover,.pm-lane:hover .pm-label{background:#f8fbff}
-.pm-label{padding:.5rem .875rem;min-width:0}
+.pm-label{padding:.625rem .875rem;min-width:0}
 .pm-lane-label{display:grid;grid-template-columns:10.5rem minmax(0,1fr);gap:.75rem;align-items:center}
 .pm-lane-label>span{min-width:0}
 .pm-capability{display:block;padding-left:.75rem;border-left:1px solid var(--rule-soft);font-size:.6875rem;font-weight:700;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pm-company{display:block;width:100%;text-align:left;font-size:.6875rem;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pm-company:hover{color:var(--navy);text-decoration:underline}
 .pm-sector{display:block;font-size:.625rem;color:var(--muted);font-weight:500}
-.pm-track::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(to right,transparent 0,transparent calc((100% / var(--qcount)) - 1px),var(--rule-soft) calc((100% / var(--qcount)) - 1px),var(--rule-soft) calc(100% / var(--qcount)))}
-.pm-cell{display:flex;align-items:center;justify-content:center;gap:3px;min-width:0;z-index:1;flex-wrap:wrap;padding:.3125rem .125rem}
+.pm-track::before{content:"";position:absolute;inset:.45rem 0;background:repeating-linear-gradient(to right,transparent 0,transparent calc((100% / var(--qcount)) - 1px),var(--rule-soft) calc((100% / var(--qcount)) - 1px),var(--rule-soft) calc(100% / var(--qcount)))}
+.pm-track::after{content:"";position:absolute;left:0;right:0;top:50%;height:1px;background:#e8edf3}
+.pm-cell{display:flex;align-items:center;justify-content:center;gap:5px;min-width:0;z-index:1;flex-wrap:wrap;padding:.4rem .2rem}
 .pm-mark{position:relative;width:11px;height:11px;border-radius:50%;background:var(--mk,var(--done));border:0;box-shadow:0 0 0 2px #fff;transition:transform .12s;flex-shrink:0}
 .pm-mark.ai{--mk:var(--ai)}
 .pm-mark.fin{--mk:var(--fin)}
@@ -423,25 +444,26 @@ a{color:inherit}
 .pm-mark.stop{background:var(--stop);box-shadow:0 0 0 2px #fff}
 .pm-mark.stop::after{content:"×";position:absolute;inset:-3px 0 0;color:#fff;font-size:8px;font-weight:900;text-align:center}
 .pm-more{font-size:.5625rem;color:var(--muted);white-space:nowrap}
-/* 色塊＝一則佐證，顏色是場景、填法是狀態 */
-.pm-blk{position:relative;flex:1;min-width:7px;height:22px;border-radius:4px;padding:0;transition:transform .12s;
-  background:var(--st,var(--rule-soft));border:1px solid var(--sc);color:var(--sc);
-  overflow:hidden;font-size:.6875rem;font-weight:700;line-height:20px;text-align:center;letter-spacing:.02em;white-space:nowrap}
-.pm-blk:hover{background:#fff}
-.pm-blk.claim{background:#fff;border-style:dashed}
-.pm-blk.stop{border-color:var(--stop);color:var(--stop);background:#fdeaea}
-.pm-blk:hover{transform:scaleY(1.35);z-index:3}
-.pm-blk.claim{background:#fff;box-shadow:inset 0 0 0 2px var(--sc)}
-.pm-blk.stop::after{content:"×";position:absolute;inset:0;font-size:10px;font-weight:900;line-height:20px;text-align:center}
+/* 一個節點＝同能力 × 同季度 × 同場景的事件群。
+   場景名稱直接寫在節點上，顏色只當輔助；狀態由前方實心／空心／叉號表達。 */
+.pm-blk{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:.3rem;min-width:0;width:auto;min-height:1.55rem;border-radius:999px;padding:.2rem .45rem;transition:transform .12s,opacity .15s;
+  background:var(--st,#f8fafc);border:1px solid var(--sc);color:var(--sc);box-shadow:0 1px 2px rgba(15,23,42,.06);font-size:.625rem;font-weight:800;line-height:1;white-space:nowrap}
+.pm-blk:hover{transform:translateY(-1px);z-index:3;box-shadow:0 3px 8px rgba(15,23,42,.14)}
+.pm-blk-dot{position:relative;width:7px;height:7px;border-radius:50%;background:var(--sc);flex:0 0 auto}
+.pm-blk.claim{background:#fff}
+.pm-blk.claim .pm-blk-dot{background:#fff;box-shadow:inset 0 0 0 1.5px var(--sc)}
+.pm-blk.stop{background:#fff7f7;border-color:#ef4444;color:#b91c1c}
+.pm-blk.stop .pm-blk-dot{width:8px;height:8px;background:transparent}
+.pm-blk.stop .pm-blk-dot::after{content:"×";position:absolute;inset:-2px 0 0;font-size:10px;font-weight:900;text-align:center}
+.pm-blk-count{display:inline-flex;align-items:center;justify-content:center;min-width:1rem;height:1rem;padding:0 .25rem;border-radius:999px;background:rgba(255,255,255,.78);color:inherit;font-size:.5625rem;font-variant-numeric:tabular-nums}
+.pm-blk.is-muted{opacity:.12;filter:saturate(.2)}
+.pm-blk.is-muted:hover{opacity:.7;filter:none}
 .pm-cap-name{display:block;width:100%;text-align:left;font-size:.6875rem;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pm-cap-name:hover{color:var(--navy);text-decoration:underline}
 .pm-cap-meta{display:block;font-size:.625rem;color:var(--muted)}
-.pm-scene-key{display:flex;flex-wrap:wrap;gap:.75rem;margin-top:.75rem;font-size:.6875rem;color:var(--ink-2)}
-.pm-scene-key span,.pm-state-key span{display:inline-flex;align-items:center;gap:.375rem}
-.pm-scene-key .pm-blk,.pm-state-key .pm-blk{flex:0 0 auto;width:2.5rem;height:18px;line-height:16px;font-size:.625rem}
 .pm-state-key{display:flex;gap:1rem;flex-wrap:wrap;margin-top:.625rem;font-size:.6875rem;color:var(--muted)}
 .pm-state-key span{display:inline-flex;align-items:center;gap:.3125rem}
-@media(max-width:720px){.pm-row{grid-template-columns:18rem minmax(48rem,1fr)}.pm-label-cols,.pm-lane-label{grid-template-columns:8rem minmax(0,1fr)}}
+@media(max-width:720px){.pm-row{grid-template-columns:12rem minmax(40rem,1fr)}.pm-label-cols,.pm-lane-label{grid-template-columns:8rem minmax(0,1fr)}.pm-scene-toolbar{align-items:flex-start}.panorama-filter.is-compact .panorama-filter-group{align-items:flex-start;flex-direction:column}}
 .sg-inner{min-width:48rem}
 .sg-row{display:grid;grid-template-columns:11rem minmax(32rem,1fr);gap:.75rem;align-items:center;border-bottom:1px solid var(--rule-soft);min-height:3.1rem}
 .sg-row:last-child{border-bottom:0}
@@ -571,7 +593,8 @@ a{color:inherit}
       <a href="index.html" class="nav-link"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>AI 趨勢</a>
       <a href="watch.html" class="nav-link"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>全球金融科技觀測</a>
       <a href="peer.html" class="nav-link active"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/></svg>同業概觀</a>
-      <a href="docs.html" class="nav-link"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>知識庫</a>
+      <a href="docs.html" class="nav-link"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>AI 模型介紹</a>
+      <a href="classroom.html" class="nav-link"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422A12.083 12.083 0 0112 20.055a12.083 12.083 0 01-6.16-9.477L12 14z"/></svg>AI 小學堂</a>
     </div>
   </div>
 </nav>
@@ -626,12 +649,12 @@ const BANDS = [
 /* 場景封閉清單＝六大場景，與 references/schema.md、peer_sheet.py 的 SCENARIOS 一致。
    原本 24 個細場景已於 2026-08-04 收斂成這六個，CSV 的「場景」欄直接存這裡的 name。 */
 const SCENE_CLUSTERS = [
-  {id:'S1',color:'#55606e',tint:'#eff1f4',short:'內部',name:'內部效率與治理'},
-  {id:'S2',color:'#2f6f66',tint:'#e9f3f1',short:'核心',name:'核心金融作業'},
-  {id:'S3',color:'#6a5aa3',tint:'#f0edf8',short:'服務',name:'智慧服務與行銷'},
-  {id:'S4',color:'#a15750',tint:'#f8edec',short:'防護',name:'風險防護與防詐'},
-  {id:'S5',color:'#3a67b5',tint:'#eaf0fa',short:'通路',name:'數位通路與支付'},
-  {id:'S6',color:'#8f7638',tint:'#f6f1e4',short:'財管',name:'投資財管與企業金融'},
+  {id:'S1',color:'#55606e',tint:'#eff1f4',short:'內部治理',name:'內部效率與治理'},
+  {id:'S2',color:'#2f6f66',tint:'#e9f3f1',short:'核心作業',name:'核心金融作業'},
+  {id:'S3',color:'#6a5aa3',tint:'#f0edf8',short:'服務行銷',name:'智慧服務與行銷'},
+  {id:'S4',color:'#a15750',tint:'#f8edec',short:'風險防詐',name:'風險防護與防詐'},
+  {id:'S5',color:'#3a67b5',tint:'#eaf0fa',short:'通路支付',name:'數位通路與支付'},
+  {id:'S6',color:'#8f7638',tint:'#f6f1e4',short:'投資財管',name:'投資財管與企業金融'},
 ];
 SCENE_CLUSTERS.forEach(sg => sg.scenes = [sg.name]);   // 舊有的 sg.scenes.includes(x) 判斷照舊可用
 const SCENE_OF_GROUP = Object.fromEntries(SCENE_CLUSTERS.map(sg => [sg.name, sg]));
@@ -656,7 +679,7 @@ let CELL = new Map();        // 集團|能力項ID
 let SCELL = new Map();       // 集團|場景
 let CCELL = new Map();       // 集團|能力項ID|場景
 let MONTHS = [];
-let view = 'landscape', who = ME, capId = '', sceneId = '', side = 'all', showStale = false, whoSub = '__all__', whoCap = '__all__', crossAxis = 'scene', crossCap = '', crossScene = 'S4';
+let view = 'landscape', who = ME, capId = '', sceneId = '', side = 'all', showStale = false, whoSub = '__all__', whoCap = '__all__', whoScene = '__all__', crossAxis = 'scene', crossCap = '', crossScene = 'S4';
 let dimensionView = 'scene', dimensionKind = 'scene', dimensionId = 'S2', dimensionGroup = ME;
 let overviewSelection = 'triple';
 let STALE_CUT = '';
@@ -703,6 +726,28 @@ const readCSV = k => {
   const el = document.getElementById('csv-' + k);
   return el ? parseCSV(el.textContent) : [];
 };
+
+/* 正式頁以 Google Sheet 發布 CSV 為主；內嵌 CSV 只作離線／連線失敗備援。
+   每次載入附時間戳，避開 Google 發布端與瀏覽器留下的舊 CSV 快取。 */
+const PEER_SHEET_PUB = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQbh-mBljvOVY586mRTKM_sduv2l2qXD-mZveOS6BvEFuKZuCc1zWwJI-eGKzg_fG7t4523aN8K7-MZ/pub';
+const PEER_SHEET = {
+  taxonomy: `${PEER_SHEET_PUB}?gid=1641856889&single=true&output=csv`,
+  profile: `${PEER_SHEET_PUB}?gid=376379360&single=true&output=csv`,
+  capability: `${PEER_SHEET_PUB}?gid=598329868&single=true&output=csv`,
+};
+async function loadCSV(k) {
+  try {
+    const sep = PEER_SHEET[k].includes('?') ? '&' : '?';
+    const response = await fetch(`${PEER_SHEET[k]}${sep}_=${Date.now()}`, {cache:'no-store'});
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const rows = parseCSV(await response.text());
+    if (!rows.length) throw new Error('雲端資料為空');
+    return rows;
+  } catch (err) {
+    console.warn(`[peer] ${k} 雲端載入失敗，改用內嵌備援`, err);
+    return readCSV(k);
+  }
+}
 
 /* ---------- cells ---------- */
 function addTo(map, k, r) {
@@ -1379,8 +1424,8 @@ function strategyMap(g, buckets, rows) {
   <div class="legend" style="margin-top:.75rem"><span class="li"><i class="swatch" style="background:var(--ai)"></i>AI</span><span class="li"><i class="swatch" style="background:var(--fin)"></i>數金</span><span class="li"><i class="swatch claim"></i>宣示中</span></div>`;
 }
 
-/* 一張圖三個維度：縱軸 13 個能力項（分 AI 面／數金面）、橫軸季度、色塊顏色＝六大場景。
-   狀態仍走實心／外框／×，所以顏色這一軸完全讓給場景，不會兩套色打架。 */
+/* 一張圖三個維度：縱軸＝能力類型、橫軸＝季度、節點文字＝場景。
+   同能力 × 同季 × 同場景合併成一個事件節點，降低逐筆色塊造成的噪音。 */
 const sceneClusterOf = r => SCENE_CLUSTERS.find(sg=>scenesOf(r).some(x=>sg.scenes.includes(x)));
 function strategyPanoramaMap(g, buckets, rows, axisRows=rows, capFilter='__all__') {
   const qs=quarterRangeFromDates(axisRows.flatMap(datesOf));
@@ -1392,16 +1437,18 @@ function strategyPanoramaMap(g, buckets, rows, axisRows=rows, capFilter='__all__
     const capRows=rows.filter(r=>capabilityClusterMatch(r,cg));
     return `<div class="pm-row pm-lane"><div class="pm-label">
       <button class="pm-cap-name" onclick="openCell('${g}','${cg.id}')" title="查看 ${esc(cg.name)} 的全部佐證">${esc(cg.name)}</button>
-      <span class="pm-cap-meta">${capRows.length} 則</span></div>
+      <span class="pm-cap-meta">${capRows.length} 則佐證・${new Set(capRows.flatMap(r=>sceneClustersOf(r).map(sg=>sg.id))).size} 個場景</span></div>
       <div class="pm-track" style="grid-template-columns:${columns};--qcount:${qs.length}">${qs.map(q=>{
-        const hits=capRows.filter(r=>datesOf(r).some(d=>qOf(d)===q));
-        const shown=hits.slice(0,3);
-        return `<div class="pm-cell">${shown.map(r=>{
-          const status=r['狀態']==='宣示中'?'claim':r['狀態']==='暫停'?'stop':'done';
-          const sg=sceneClusterOf(r);
-          const title=`${q}｜${r['子公司']}｜${cg.name}｜${sg?sg.name:'未分類場景'}｜${r['狀態']}`;
-          return `<button class="pm-blk ${status} ${shown.length<=2?'solo':''}" style="--sc:${sg?sg.color:'var(--muted)'};--st:${sg?sg.tint:'var(--rule-soft)'}" title="${esc(title)}" aria-label="${esc(title)}" onclick="openStrategyEvidence(${CAP.indexOf(r)},'${cg.id}','${sg?sg.id:''}')">${shown.length<=2?esc(sg?sg.short:'—'):''}</button>`;
-        }).join('')}${hits.length>shown.length?`<span class="pm-more">+${hits.length-shown.length}</span>`:''}</div>`;
+        const quarterRows=capRows.filter(r=>datesOf(r).some(d=>qOf(d)===q));
+        const groups=SCENE_CLUSTERS.map(sg=>({sg,rs:quarterRows.filter(r=>scenesOf(r).some(s=>sg.scenes.includes(s)))})).filter(x=>x.rs.length);
+        return `<div class="pm-cell">${groups.map(({sg,rs})=>{
+          const rank=Math.max(...rs.map(r=>RANK[r['狀態']]||0));
+          const status=rank===2?'claim':rank===1?'stop':'done';
+          const companies=[...new Set(rs.map(r=>r['子公司']).filter(Boolean))];
+          const title=`${q}｜${cg.name}｜${sg.name}｜${rs.length} 則｜${companies.join('、')}`;
+          const indices=[...new Set(rs.map(r=>CAP.indexOf(r)))].join(',');
+          return `<button class="pm-blk ${status} ${whoScene!=='__all__'&&whoScene!==sg.id?'is-muted':''}" style="--sc:${sg.color};--st:${sg.tint}" title="${esc(title)}" aria-label="${esc(title)}" onclick="openStrategyCluster('${indices}','${cg.id}','${sg.id}','${q}')"><i class="pm-blk-dot" aria-hidden="true"></i><span>${esc(sg.short)}</span>${rs.length>1?`<b class="pm-blk-count">${rs.length}</b>`:''}</button>`;
+        }).join('')}</div>`;
       }).join('')}</div></div>`;
   };
   const bands=['AI','數金'].map(sd=>{
@@ -1411,12 +1458,14 @@ function strategyPanoramaMap(g, buckets, rows, axisRows=rows, capFilter='__all__
       <div class="pm-scene-track"><span class="pm-scene-summary">${caps.length} 個能力項有佐證</span></div></div>${caps.map(capRow).join('')}`;
   }).join('');
   const idle=CAP_CLUSTERS.filter(cg=>!live.includes(cg));
-  return `<div class="pm-chart thin"><div class="pm-inner">
-      <div class="pm-row pm-axis"><div class="pm-axis-label">能力項</div><div class="pm-axis-track" style="grid-template-columns:${columns}">${qs.map(q=>`<span class="pm-quarter">${q}</span>`).join('')}</div></div>
+  const sceneToolbar=`<div class="pm-scene-toolbar"><span class="pm-scene-toolbar-label">聚焦場景</span>
+    <button class="pm-scene-filter ${whoScene==='__all__'?'on':''}" onclick="pickWhoScene('__all__')" title="目前篩選範圍共 ${rows.length} 則佐證">全部<span class="pm-scene-count">${rows.length}</span></button>
+    ${SCENE_CLUSTERS.map(sg=>{const n=rows.filter(r=>scenesOf(r).some(s=>sg.scenes.includes(s))).length;return `<button class="pm-scene-filter ${whoScene===sg.id?'on':''}" style="--sc:${sg.color};--tint:${sg.tint}" onclick="pickWhoScene('${sg.id}')" title="${esc(sg.name)}：${n} 則佐證"><i></i>${esc(sg.name)}<span class="pm-scene-count">${n}</span></button>`}).join('')}</div>`;
+  return `${sceneToolbar}<div class="pm-chart thin"><div class="pm-inner">
+      <div class="pm-row pm-axis"><div class="pm-axis-label">能力類型</div><div class="pm-axis-track" style="grid-template-columns:${columns}">${qs.map((q,i)=>`<span class="pm-quarter ${i===0||q.endsWith('Q1')?'is-year-start':''} ${i===qs.length-1?'is-latest':''}">${q}</span>`).join('')}</div></div>
       ${bands}
     </div></div>
-    <div class="pm-scene-key">${SCENE_CLUSTERS.map(sg=>`<span><i class="pm-blk solo" style="--sc:${sg.color};--st:${sg.tint}">${esc(sg.short)}</i>${esc(sg.name)}</span>`).join('')}</div>
-    <div class="pm-state-key"><span><i class="pm-blk" style="--sc:var(--ink-2);--st:var(--rule-soft)"></i>淡底實線＝已導入</span><span><i class="pm-blk claim" style="--sc:var(--ink-2)"></i>白底虛線＝宣示中</span><span><i class="pm-blk stop"></i>×＝暫停</span><span>點色塊看該則佐證</span></div>
+    <div class="pm-state-key"><span><i class="pm-blk-dot" style="--sc:var(--ink-2)"></i>實心＝已導入</span><span><i class="pm-blk claim" style="--sc:var(--ink-2);padding:.25rem"><i class="pm-blk-dot"></i></i>空心＝宣示中</span><span><i class="pm-blk stop" style="padding:.25rem"><i class="pm-blk-dot"></i></i>×＝暫停</span><span>標籤＝落地場景</span><span>數字＝同季同場景佐證數</span><span>點標籤看佐證</span></div>
     ${idle.length?`<p class="footnote" style="margin-top:.5rem">未見佐證：${idle.map(cg=>esc(cg.id)).join('・')}</p>`:''}`;
 }
 
@@ -1436,6 +1485,15 @@ function openStrategyEvidence(rowIndex,capClusterId,sceneClusterId) {
   const sg=SCENE_CLUSTERS.find(x=>x.id===sceneClusterId);
   const st=STATE[RANK[r['狀態']]||0];
   openDrawer(`<div><div class="sec-title" style="margin-bottom:.375rem">單則佐證</div><h2 style="font-size:1rem">${esc(r['集團'])}　${esc(sg?sg.name:'')} × ${esc(cg?cg.name:'')}</h2><div style="margin-top:.4375rem"><span class="chip ${st.chip}">${esc(r['狀態'])}</span><span style="font-size:.75rem;color:var(--muted);margin-left:.375rem">1 則新聞</span></div></div>`,evidence(r));
+}
+
+function openStrategyCluster(indexList,capClusterId,sceneClusterId,q) {
+  const rows=String(indexList||'').split(',').map(Number).filter(Number.isInteger).map(i=>CAP[i]).filter(Boolean);
+  if (!rows.length) return;
+  const cg=CAP_CLUSTERS.find(x=>x.id===capClusterId);
+  const sg=SCENE_CLUSTERS.find(x=>x.id===sceneClusterId);
+  const body=rows.slice().sort((a,b)=>(iso(b['最近佐證日期'])||'').localeCompare(iso(a['最近佐證日期'])||'')).map(evidence).join('');
+  openDrawer(`<div><div class="sec-title" style="margin-bottom:.375rem">策略事件</div><h2 style="font-size:1rem">${esc(q)}　${esc(sg?sg.name:'')} × ${esc(cg?cg.name:'')}</h2><div style="font-size:.75rem;color:var(--muted);margin-top:.4375rem">${rows.length} 則佐證</div></div>`,body);
 }
 
 function renderOne() {
@@ -1521,9 +1579,11 @@ function renderOne() {
       <div class="strategy-panorama-head"><div>
         <div class="sec-title" style="margin-bottom:.375rem">Strategy panorama</div>
         <div class="h3">${g} 策略全景</div>
-        <p class="footnote" style="margin-top:.25rem">一列一個能力項（分 AI 面／數金面）、一欄一季，一塊色塊是一則佐證：顏色代表六大場景，淡底實線＝已導入、白底虛線＝宣示中。色塊上直接標場景短名（一格三則以上時只上色），滑過看子公司，點下去看原文。</p>
+        <p class="footnote" style="margin-top:.25rem">縱向看能力布局，橫向看推進時間，節點直接標示落地場景；同一能力、季度與場景的多筆佐證會合併成一個節點。</p>
       </div></div>
-      <div class="panorama-filter"><div class="panorama-filter-head"><span class="panorama-filter-label">篩選策略全景</span><span class="panorama-filter-hint">同步更新策略圖與下方新聞</span></div><div class="panorama-filter-group"><span class="panorama-filter-group-label">推進主體</span>${subTabs}</div><div class="panorama-filter-group"><span class="panorama-filter-group-label">能力類型</span>${capTypeTabs}</div></div>
+      <div class="panorama-filter is-compact"><div class="panorama-filter-group"><span class="panorama-filter-group-label">推進主體</span>${subTabs}</div>
+        <details class="panorama-advanced" ${whoCap!=='__all__'?'open':''}><summary>進階能力篩選${selectedWhoCap?`：${esc(selectedWhoCap.name)}`:''}</summary><div class="panorama-advanced-body"><div class="panorama-filter-group"><span class="panorama-filter-group-label">能力類型</span>${capTypeTabs}</div></div></details>
+      </div>
       ${strategyPanoramaMap(g,whoSub==='__all__'?buckets:buckets.filter(b=>b.key===whoSub),scope,groupRows,whoCap)}
     </div>
 
@@ -1652,9 +1712,10 @@ function render() {
 function go(v) { view = v; render(); }
 function showCap(c)   { capId = c;   view = 'cap';         closeDrawer(); render(); scrollTo({top:0,behavior:'smooth'}); }
 function showScene(s) { sceneId = s; view = 'scene'; closeDrawer(); render(); scrollTo({top:0,behavior:'smooth'}); }
-function showOne(g)   { if (g !== who) { whoSub = '__all__'; whoCap = '__all__'; } who = g; view = 'one'; closeDrawer(); render(); scrollTo({top:0,behavior:'smooth'}); }
+function showOne(g)   { if (g !== who) { whoSub = '__all__'; whoCap = '__all__'; whoScene = '__all__'; } who = g; view = 'one'; closeDrawer(); render(); scrollTo({top:0,behavior:'smooth'}); }
 function pickSub(k)   { whoSub = whoSub === k ? '__all__' : k; render(); }
 function pickWhoCap(k){ whoCap = whoCap === k ? '__all__' : k; render(); }
+function pickWhoScene(k){ whoScene = whoScene === k && k !== '__all__' ? '__all__' : k; render(); }
 function setSide(v)   { side = v; render(); }
 function setStale()   { showStale = !showStale; render(); }
 function pickCross(c,s) {
@@ -1696,14 +1757,14 @@ function pickSceneCluster(s) {
 document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeDrawer(); hideTip(); } });
 addEventListener('scroll', hideTip, { passive: true });
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   const cut = new Date();
   cut.setMonth(cut.getMonth() - STALE_MONTHS);
   STALE_CUT = cut.toISOString().slice(0,10);
 
-  TAX      = readCSV('taxonomy');
-  PROFILE  = readCSV('profile');
-  CAP      = readCSV('capability');
+  [TAX, PROFILE, CAP] = await Promise.all([
+    loadCSV('taxonomy'), loadCSV('profile'), loadCSV('capability')
+  ]);
   CAPS = TAX.map(t => t['能力項ID']).filter(Boolean);
   CAP_CLUSTERS = TAX.filter(t => t['能力項ID']).map(t => ({
     id: t['能力項ID'], key: t['能力項ID'], side: t['側'] === 'AI' ? 'AI' : '數金',
