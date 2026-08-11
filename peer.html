@@ -36,7 +36,16 @@ a{color:inherit}
 .nav-link{display:flex;align-items:center;gap:.375rem;text-decoration:none;color:rgba(255,255,255,.75);transition:color .2s}
 .nav-link:hover,.nav-link.active{color:#fdba74}
 .nav-link svg{width:.875rem;height:.875rem}
-@media(max-width:900px){.nav-links{display:none}}
+.menu-toggle{display:none;background:none;border:0;color:#fff;padding:.5rem;border-radius:.5rem;cursor:pointer;transition:background .2s}
+.menu-toggle:hover{background:rgba(255,255,255,.1)}
+.menu-toggle svg{width:1.25rem;height:1.25rem}
+.mobile-menu{display:none;border-top:1px solid rgba(255,255,255,.1)}
+.mobile-menu-inner{max-width:88rem;margin:0 auto;padding:.75rem 1rem;font-size:.875rem}
+.mobile-menu a{display:flex;align-items:center;gap:.625rem;padding:.625rem 0;color:rgba(255,255,255,.7);text-decoration:none;transition:color .2s}
+.mobile-menu a:hover{color:#fff}
+.mobile-menu a.active{color:#fdba74;font-weight:600}
+.mobile-menu a svg{width:1rem;height:1rem;flex-shrink:0}
+@media(max-width:900px){.nav-links{display:none}.menu-toggle{display:block}.mobile-menu.open{display:block}}
 
 .pagehead{padding:1.75rem 0 .25rem}
 .pagehead h1{font-size:1.5rem;font-weight:700;color:var(--navy);letter-spacing:-.01em}
@@ -595,6 +604,18 @@ a{color:inherit}
       <a href="peer.html" class="nav-link active"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/></svg>同業概觀</a>
       <a href="docs.html" class="nav-link"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>AI 模型介紹</a>
       <a href="classroom.html" class="nav-link"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422A12.083 12.083 0 0112 20.055a12.083 12.083 0 01-6.16-9.477L12 14z"/></svg>AI 小學堂</a>
+    </div>
+    <button id="menuToggle" class="menu-toggle" aria-label="Menu">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
+  </div>
+  <div id="mobileMenu" class="mobile-menu">
+    <div class="mobile-menu-inner">
+      <a href="index.html"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>AI 趨勢</a>
+      <a href="watch.html"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>全球金融科技觀測</a>
+      <a href="peer.html" class="active"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/></svg>同業概觀</a>
+      <a href="docs.html"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>AI 模型介紹</a>
+      <a href="classroom.html"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422A12.083 12.083 0 0112 20.055a12.083 12.083 0 01-6.16-9.477L12 14z"/></svg>AI 小學堂</a>
     </div>
   </div>
 </nav>
@@ -1785,6 +1806,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   sceneId = ALL_SCENES.slice().sort((a,b) => sceneDone(b) - sceneDone(a))[0] || ALL_SCENES[0];
   renderTiles();
   render();
+});
+
+document.getElementById('menuToggle').addEventListener('click', () => {
+  document.getElementById('mobileMenu').classList.toggle('open');
 });
 </script>
 <script type="text/plain" id="csv-taxonomy">
