@@ -83,8 +83,43 @@
         .callout-提醒 .callout-title { color: #dc2626; }
         .callout-總結  { background: #f0fdf4; border-color: #bbf7d0; color: #14532d; }
         .callout-總結 .callout-title { color: #16a34a; }
-        .callout-元大  { background: linear-gradient(to right, #eff6ff, #f8faff); border-color: #bfdbfe; color: #1e3a8a; }
-        .callout-元大 .callout-title { color: #1d4ed8; }
+        .callout-金融業  { background: linear-gradient(to right, #eff6ff, #f8faff); border-color: #bfdbfe; color: #1e3a8a; }
+        .callout-金融業 .callout-title { color: #1d4ed8; }
+
+        /* ===== 段落分級：口白＝現場唸的，延伸＝只在網頁 ===== */
+        .seg-extra > h2::after {
+            content: "延伸";
+            margin-left: 0.6rem;
+            padding: 0.15rem 0.45rem;
+            border: 1px solid #e2e8f0; border-radius: 999px;
+            font-size: 0.6rem; font-weight: 600; color: #94a3b8;
+            vertical-align: middle;
+        }
+        /* 只看重點：藏起延伸段，主管三個月後回頭複習用 */
+        body.spoken-only .seg-extra,
+        body.spoken-only #toc .seg-extra { display: none; }
+
+        /* ===== 投影模式：會議室後排要看得到 =====
+           不是簡報軟體，是同一頁放大。字級、行距、色塊都往上加一階。 */
+        body.projector { font-size: 19px; }
+        body.projector .lesson-body { line-height: 2.05; }
+        body.projector .lesson-body h2 { font-size: 1.8rem; }
+        body.projector .lesson-body :where(p, li) { font-size: 1.08rem; }
+        body.projector .callout { border-width: 2px; }
+        body.projector .callout > p { font-size: 1.05rem; }
+        body.projector .fl-what { font-size: 1.02rem; }
+        body.projector .fl { --fl-line: 3px; }
+        body.projector mark.hl { padding: 0.15em 0.25em; }
+        body.projector aside, body.projector #toc { display: none; }
+        body.projector .lesson-body { max-width: 46rem; margin-inline: auto; }
+
+        .view-btn {
+            font-size: 0.72rem; font-weight: 600; color: #64748b;
+            padding: 0.3rem 0.7rem; border: 1px solid #e2e8f0; border-radius: 999px;
+            background: #fff; cursor: pointer;
+        }
+        .view-btn[aria-pressed="true"] { background: #1e293b; color: #fff; border-color: #1e293b; }
+        @media print { .view-bar { display: none; } }
 
         /* ===== 表格：卡片化 ===== */
         .lesson-body table {
@@ -298,6 +333,10 @@
 
             <!-- 內文 -->
             <main class="flex-1 min-w-0">
+                <div class="view-bar flex items-center gap-2 mb-3">
+                    <button class="view-btn" id="btn-spoken" aria-pressed="false">只看重點</button>
+                    <button class="view-btn" id="btn-projector" aria-pressed="false">投影模式</button>
+                </div>
                 <article class="bg-white rounded-2xl card px-5 sm:px-9 py-8">
                     <div class="lesson-body prose prose-slate max-w-none" style="--accent: {{accent}};">
 {{content}}
@@ -316,6 +355,19 @@
     <script>
         document.getElementById('menuToggle').addEventListener('click', () => {
             document.getElementById('mobileMenu').classList.toggle('hidden');
+        });
+
+        // 只看重點／投影模式。選擇記在 localStorage，逐集不用重按。
+        [['btn-spoken', 'spoken-only'], ['btn-projector', 'projector']].forEach(([id, cls]) => {
+            const btn = document.getElementById(id);
+            const on = localStorage.getItem(cls) === '1';
+            document.body.classList.toggle(cls, on);
+            btn.setAttribute('aria-pressed', String(on));
+            btn.addEventListener('click', () => {
+                const now = document.body.classList.toggle(cls);
+                btn.setAttribute('aria-pressed', String(now));
+                localStorage.setItem(cls, now ? '1' : '0');
+            });
         });
 
         // 表格加水平捲動外框，手機才不會撐破版面
