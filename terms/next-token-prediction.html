@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Agent｜AI 小學堂 名詞</title>
-    <meta name="description" content="模型 ＋ 可呼叫的工具 ＋ 一個沒人在看的迴圈。">
-    <meta property="og:title" content="AI Agent AI 代理">
-    <meta property="og:description" content="模型 ＋ 可呼叫的工具 ＋ 一個沒人在看的迴圈。">
+    <title>Next Token Prediction｜AI 小學堂 名詞</title>
+    <meta name="description" content="模型唯一在做的事：看著已經有的字，猜下一個最可能是什麼，然後把它也算進去，再猜下一個。">
+    <meta property="og:title" content="Next Token Prediction 猜下一個字">
+    <meta property="og:description" content="模型唯一在做的事：看著已經有的字，猜下一個最可能是什麼，然後把它也算進去，再猜下一個。">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         html { scroll-behavior: smooth; }
@@ -18,7 +18,7 @@
         .card { box-shadow: 0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04); }
 
         /* 每頁的重點色來自「第幾集首次出現」，整頁只用這一個變數 */
-        :root { --accent: #2563eb; }
+        :root { --accent: #c2410c; }
         .hero-term {
             background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, color-mix(in srgb, var(--accent) 30%, #1e293b) 100%);
         }
@@ -305,10 +305,10 @@
             </a>
             <div class="flex items-center gap-2 flex-wrap mb-3 text-[11px]">
                 <span class="font-semibold tracking-wider rounded-full px-2.5 py-1"
-                      style="background:color-mix(in srgb, var(--accent) 30%, transparent); color:#fff;">2026-W31</span>
+                      style="background:color-mix(in srgb, var(--accent) 30%, transparent); color:#fff;">2026-W33</span>
             </div>
-            <h1 class="text-[1.7rem] sm:text-4xl font-bold tracking-tight leading-tight">AI Agent</h1>
-            <p class="text-white/50 text-sm mt-1.5">AI 代理</p>
+            <h1 class="text-[1.7rem] sm:text-4xl font-bold tracking-tight leading-tight">Next Token Prediction</h1>
+            <p class="text-white/50 text-sm mt-1.5">猜下一個字</p>
         </div>
     </header>
 
@@ -316,34 +316,39 @@
 
         <div class="cols">
             <main class="space-y-9 min-w-0">
-                <p class="pull">模型 ＋ 可呼叫的工具 ＋ 一個沒人在看的迴圈。</p>
+                <p class="pull">模型唯一在做的事：看著已經有的字，猜下一個最可能是什麼，然後把它也算進去，再猜下一個。</p>
                 <article class="term-body">
 <section class="tb tb1"><h2 id="_1">定義</h2>
-<p>AI 代理不是某個模型的名字，而是一種<strong>組裝方式</strong>——三個零件拼起來的系統：</p>
-<div class="fl"><div class="fl-step"><div class="fl-who">會思考的模型</div><div class="fl-what">每一輪決定「下一步該輸出什麼文字」</div></div><div class="fl-step"><div class="fl-who">一組工具</div><div class="fl-what">查資料庫、寄信、呼叫 API、執行程式</div></div><div class="fl-step"><div class="fl-who">一個迴圈</div><div class="fl-what">做完看結果 → 沒完成 → 再想 → 再做</div></div></div>
-<p>最關鍵的一句：<strong>那個<a href="agent-loop.html" class="term-link" data-term="agent-loop">迴圈</a>是人寫的，不是模型自己長出來的。</strong></p>
-<p>由工程師決定「一直跑到它宣告完成為止」，由工程師決定「配哪幾項工具」。模型只在每一輪裡，決定該步驟輸出什麼文字。</p>
+<p>模型不是去某個地方「查」答案。它做的事只有一件：<strong>看著目前已經有的所有字，算出下一個字最可能是什麼，吐出來；然後把剛吐出來的那個字也算進上文，再猜下一個。</strong> 一個字一個字，猜到句子結束為止。</p>
+<p>有兩個推論直接從這裡長出來：</p>
+<p><strong>它很會「講得像」，但不保證「講得對」。</strong> 它被訓練去最佳化的是「這個字接在這裡順不順」，不是「這句話真不真」。所以它掰起來會非常流暢——這就是<a href="alignment.html" class="term-link" data-term="alignment">幻覺</a>的根，不是一個可以靠修 bug 修掉的瑕疵。</p>
+<p><strong>字一旦吐出去就收不回來。</strong> 沒有回頭修改這回事。第 3 個字猜偏了，後面每個字都是建在那個偏掉的字上面繼續猜的。</p>
+<div class="callout callout-提醒"><div class="callout-title">「猜」不代表隨便</div><p>這裡的「猜」是算出一個機率分布，不是擲骰子。它讀過的資料量夠大，所以在絕大多數情況下猜得又快又準。問題不在準確率，在<strong>它沒有辦法知道自己什麼時候不準</strong>。</p></div>
 </section><section class="tb tb2"><h2 id="_2">為何會出現</h2>
-<p>單次問答完成不了真實工作。真實工作長這樣：先查一下、發現資料不對、換個條件再查、把結果整理成表、寄出去。<strong>每一步都要看前一步的結果才知道怎麼做。</strong></p>
-<p><a href="tool-use.html" class="term-link" data-term="tool-use">工具呼叫</a>解決了「模型碰得到外部世界」，但一次只能做一個動作。把它包進迴圈，讓模型可以「做完看結果、沒完成再做」，才變成一個能持續採取行動的系統。</p>
-<p>所以代理不是某一年被發明出來的，是兩件事同時到位的結果：<mark class="hl">接口建置完成，模型也終於能承擔連續決策</mark>。</p>
+<p>這是這整個領域的根節點，你聽過的名詞幾乎都建在它上面。</p>
+<p>它之所以成為主流，是因為它解決了「訓練資料從哪來」這個瓶頸。要教模型分類貓狗，你得先請人標好幾百萬張圖；但要教模型猜下一個字，<strong>任何一段現成的文字都自帶答案</strong>——把後半遮起來，前半當題目、後半當標準答案。網路上所有的文字，一夜之間全部變成免費的考卷。</p>
+<p>後來每一次的能力躍進，都可以理解成「在這個框架上多加一層」，而不是換掉它：</p>
+<ul>
+<li><a href="chain-of-thought.html" class="term-link" data-term="chain-of-thought">思考鏈</a>：讓它把推導過程也當成字先吐出來，後面猜答案時上文裡就有算式了</li>
+<li><a href="reasoning-model.html" class="term-link" data-term="reasoning-model">推理模型</a>：把上面那件事訓練成模型的預設行為</li>
+<li><a href="tool-use.html" class="term-link" data-term="tool-use">工具呼叫</a>：讓它吐出一段固定格式的字，由外部程式接手去真的執行</li>
+<li><a href="ai-agent.html" class="term-link" data-term="ai-agent">AI 代理</a>：把「吐字 → 執行 → 把結果餵回去當上文」接成一個迴圈</li>
+</ul>
+<p><mark class="hl">看清楚：沒有任何一項跳出「猜下一個字」這個框架。變的是上文裡有什麼、以及誰來讀它吐出來的字。</mark></p>
 </section><section class="tb tb3"><h2 id="_3">金融背景怎麼理解</h2>
-<p>用人力配置理解最快。假設部門新進一位同仁：</p>
-<p><strong>第一種配置</strong>（對應<a href="chatbot.html" class="term-link" data-term="chatbot">聊天機器人</a>）：你問他問題，他給你答案。他很會分析、很會寫報告，但輸出止於「建議」。要不要照辦你決定，動手的是你。<strong>他的風險上限是「說錯話」。</strong></p>
-<p><strong>第二種配置</strong>（對應 AI 代理）：你發給他門禁卡、系統帳號、一台可以下單的電腦，說「這件事你自己處理完」。他自己查、自己判斷、自己執行，做完回報。<strong>他的風險上限變成「做錯事」。</strong></p>
-<p>差別不在他變聰明了，在於<strong>你給了他執行能力</strong>。</p>
-<div class="callout callout-提醒"><div class="callout-title">分水嶺不是準確率</div><p>導入 AI 客服、AI 理專助理、後台自動化時，真正該問的第一題不是「模型準不準」，而是「<mark class="hl">這個 AI 有沒有手</mark>」。只會建議的 AI 出錯，成本是客戶看到一句錯話；會執行的 AI 出錯，成本是一筆實際交易、一次實際外洩。</p></div>
-<p>而現行的法遵、資安、稽核流程，全部是為「人會犯錯」設計的——人出錯有紀錄、有簽核、有權責歸屬。代理在迴圈裡做的那二十個決定，多數公司<strong>一筆紀錄都沒留</strong>。</p>
-<p>好消息是：工具清單和迴圈都是我方配置的。配幾項工具、每項能碰到哪些資料、跑幾輪要停下來讓人確認，全屬設計階段的選擇，不是模型的固有性質。這也是<a href="agent-governance.html" class="term-link" data-term="agent-governance">代理治理</a>的著力點。</p></section>
+<p>把它想成一個<strong>被規定不准打草稿、而且開口就不能改的資深行員</strong>。</p>
+<p>他看過幾千張攤還表，所以脫口而出的數字通常不會離譜。但條件一多，他就會講出一個聽起來非常合理、位數也對、但就是錯的數字——而且因為不能改，他只好順著那個錯數字把後面的話講得頭頭是道。</p>
+<div class="callout callout-比喻"><div class="callout-title">這個比喻能帶你走多遠</div><p>「準確率不夠」跟「講錯了還講得很有條理」是兩件不同的風險。前者可以靠換更好的模型改善，後者不行——<strong>它是這個機制本身的特性</strong>。</p>
+<p>所以放進客戶接觸點或法遵流程之前，該問的不是「它多準」，而是<strong>「它講錯的時候，我們用什麼看得出來」</strong>。這是<a href="guardrail.html" class="term-link" data-term="guardrail">護欄</a>和<a href="human-in-the-loop.html" class="term-link" data-term="human-in-the-loop">人類介入審核</a>存在的理由。</p></div></section>
                 </article>
             </main>
             <aside class="rail space-y-7 min-w-0">
-                <section><div class="sec-h">相關名詞</div><div class="rel"><a href="agent-loop.html">Agent Loop<span>代理迴圈</span></a><a href="tool-use.html">Tool Use / Function Calling<span>工具呼叫</span></a><a href="chatbot.html">Chatbot<span>聊天機器人</span></a><a href="agent-governance.html">Agent Governance<span>代理治理</span></a></div></section>
-                <section><div class="sec-h">哪幾集提到它</div><div class="eps"><a href="../lessons/2026-W33-next-token-prediction.html" class="ep"><div class="ep-w">2026-W33</div><div class="ep-t">那個「思考中…」到底在想什麼——AI 其實一直在猜下一個字</div></a><a href="../lessons/2026-W32-alignment.html" class="ep"><div class="ep-w">2026-W32</div><div class="ep-t">AI 學會了說謊，還湮滅證據——沒有人教它這件事</div></a><a href="../lessons/2026-W31-ai-agent.html" class="ep"><div class="ep-w">2026-W31</div><div class="ep-t">AI 自己跑出了籠子——什麼是「AI 代理」？</div></a></div></section>
+                <section><div class="sec-h">相關名詞</div><div class="rel"><a href="alignment.html">Alignment<span>對齊</span></a><a href="chain-of-thought.html">Chain-of-Thought<span>思考鏈</span></a><a href="reasoning-model.html">Reasoning Model<span>推理模型</span></a><a href="tool-use.html">Tool Use / Function Calling<span>工具呼叫</span></a><a href="ai-agent.html">AI Agent<span>AI 代理</span></a><a href="guardrail.html">Guardrail<span>護欄</span></a><a href="human-in-the-loop.html">Human-in-the-Loop<span>人類介入審核</span></a></div></section>
+                <section><div class="sec-h">哪幾集提到它</div><div class="eps"><a href="../lessons/2026-W33-next-token-prediction.html" class="ep"><div class="ep-w">2026-W33</div><div class="ep-t">那個「思考中…」到底在想什麼——AI 其實一直在猜下一個字</div></a></div></section>
             </aside>
         </div>
 
-        <section><div class="sec-h">容易跟它搞混</div><div class="cmp"><div class="cmp-title">AI Agent vs Chatbot</div><p class="cmp-sum">看起來都是「AI 在對話」，但自主程度天差地遠</p><div class="cmp-grid" style="--n:2"><div class="cmp-card"><div class="cmp-head" style="background:#1d4ed8">Chatbot（聊天機器人）</div><div class="cmp-row"><div class="cmp-k">是什麼</div><div class="cmp-v">依照預設腳本或問答規則回應的對話系統，包含早期 Line 機器人等</div></div><div class="cmp-row"><div class="cmp-k">優勢</div><div class="cmp-v">穩定可預期、成本低、容易管理</div></div><div class="cmp-row"><div class="cmp-k">劣勢</div><div class="cmp-v">超出腳本就無法應對，缺乏真正的理解與彈性</div></div><div class="cmp-row"><div class="cmp-k">適合</div><div class="cmp-v">標準化的固定流程（如帳號查詢、基本 FAQ）</div></div></div><div class="cmp-card"><div class="cmp-head" style="background:#1e293b">AI Agent</div><div class="cmp-row"><div class="cmp-k">是什麼</div><div class="cmp-v">能自主規劃步驟、呼叫工具、修正錯誤，達成複雜目標的 AI 系統</div></div><div class="cmp-row"><div class="cmp-k">優勢</div><div class="cmp-v">能應對未預設的情況、自主完成多步驟任務、不斷學習改進</div></div><div class="cmp-row"><div class="cmp-k">劣勢</div><div class="cmp-v">行為較難預測、需要更嚴格的監控與安全設計</div></div><div class="cmp-row"><div class="cmp-k">適合</div><div class="cmp-v">需要自主判斷與執行的複雜業務流程自動化</div></div></div></div><div class="cmp-note cmp-key"><div class="cmp-note-k">核心差異</div><p>Chatbot 按劇本說話；AI Agent 自己想劇本再執行。現代 AI 助理（如 Claude、GPT）介於兩者之間，有理解能力但仍需人工確認高風險操作。</p></div><div class="cmp-note cmp-biz"><div class="cmp-note-k">金融業應用情境</div><p>一般客服問答機器人 = Chatbot；自動偵測異常交易並起草通報文件 = AI Agent</p></div></div><div class="cmp"><div class="cmp-title">MCP vs Agent</div><p class="cmp-sum">MCP 是 AI 與工具溝通的「協議標準」，Agent 是能自主執行任務的「決策執行系統」——兩者常被混淆，但定位截然不同</p><div class="cmp-grid" style="--n:2"><div class="cmp-card"><div class="cmp-head" style="background:#1d4ed8">MCP（模型上下文協定）</div><div class="cmp-row"><div class="cmp-k">是什麼</div><div class="cmp-v">由 Anthropic 推出的 AI 專用開放協定，定義 AI 模型與外部工具／資料來源之間的通訊規範，讓 AI 可安全且一致地存取外部資源</div></div><div class="cmp-row"><div class="cmp-k">優勢</div><div class="cmp-v">跨平台標準化接口、AI 原生設計、開發一次可供多種 AI 共用；資料存取有沙箱隔離保護</div></div><div class="cmp-row"><div class="cmp-k">劣勢</div><div class="cmp-v">本身只是通訊橋樑，不執行任務；需架設 MCP Server，有一定技術門檻；生態系仍在建立中</div></div><div class="cmp-row"><div class="cmp-k">適合</div><div class="cmp-v">企業建立可跨多個 AI 模型共用的工具整合層；讓 AI 安全存取內部系統與資料庫</div></div></div><div class="cmp-card"><div class="cmp-head" style="background:#1e293b">AI Agent（代理人）</div><div class="cmp-row"><div class="cmp-k">是什麼</div><div class="cmp-v">能自主規劃步驟、呼叫工具、修正錯誤，達成複雜目標的 AI 系統架構，可持續迭代直到任務完成</div></div><div class="cmp-row"><div class="cmp-k">優勢</div><div class="cmp-v">自主完成複雜多步驟任務；能應對未預設情況；可靈活組合多種工具，具備記憶與推理能力</div></div><div class="cmp-row"><div class="cmp-k">劣勢</div><div class="cmp-v">行為較難完全預測；Token 消耗量大、成本較高；需嚴格定義目標與安全邊界</div></div><div class="cmp-row"><div class="cmp-k">適合</div><div class="cmp-v">複雜業務流程自動化、研究分析報告生成、需要動態決策與多工具協作的工作場景</div></div></div></div><div class="cmp-note cmp-key"><div class="cmp-note-k">核心差異</div><p>MCP 解決「連接」問題——如何讓 AI 標準化存取工具與資料；Agent 解決「執行」問題——如何讓 AI 自主完成複雜任務。兩者是互補關係：Agent 常透過 MCP 來連接所需工具，MCP 是 Agent 架構中的基礎設施層。</p></div><div class="cmp-note cmp-biz"><div class="cmp-note-k">金融業應用情境</div><p>MCP：讓客服 AI 透過標準協議存取帳務系統、KYC 資料庫，確保安全合規的資料存取。Agent：自動完成「分析客戶信用報告 → 比對風險評分 → 起草核貸建議書」的完整多步驟流程</p></div></div><div class="cmp"><div class="cmp-title">龍蝦（OpenClaw） vs AI Agent</div><p class="cmp-sum">同樣是讓 AI 自動執行任務，差在「直接用現成開源框架、三十分鐘跑起來」還是「自己招工程師、花三個月打造」</p><div class="cmp-grid" style="--n:2"><div class="cmp-card"><div class="cmp-head" style="background:#1d4ed8">龍蝦（OpenClaw）</div><div class="cmp-row"><div class="cmp-k">是什麼</div><div class="cmp-v">開源的即用型 AI Agent 框架，安裝後直接掛接你已在用的訊息平台（LINE、Slack、Teams、WhatsApp），讓 AI 在上面執行自動化任務，底層呼叫 Claude 等大型模型作為推理核心</div></div><div class="cmp-row"><div class="cmp-k">優勢</div><div class="cmp-v">免費開源、部署快（數小時內可跑）、資料留在自家伺服器、使用熟悉的對話介面操控 AI、不需從頭寫程式</div></div><div class="cmp-row"><div class="cmp-k">劣勢</div><div class="cmp-v">底層仍需付費呼叫 AI API（如 Claude）、高度客製化仍需工程師介入、企業級資安設計需額外補強</div></div><div class="cmp-row"><div class="cmp-k">適合</div><div class="cmp-v">想快速驗證 AI Agent 應用場景、資料不想上雲、又缺乏大型工程團隊的部門或中小型企業</div></div></div><div class="cmp-card"><div class="cmp-head" style="background:#1e293b">AI Agent</div><div class="cmp-row"><div class="cmp-k">是什麼</div><div class="cmp-v">工程師使用 LangChain、AutoGen 等框架，從頭設計符合企業需求的 AI Agent 系統，完整掌控流程邏輯、工具串接與資安架構</div></div><div class="cmp-row"><div class="cmp-k">優勢</div><div class="cmp-v">高度客製化、可深度整合企業內部系統（核心主機、風控 API）、架構可依法遵合規要求嚴格設計</div></div><div class="cmp-row"><div class="cmp-k">劣勢</div><div class="cmp-v">需要 AI 工程師團隊、建置週期長（數週至數月）、維護成本高、概念驗證期較長</div></div><div class="cmp-row"><div class="cmp-k">適合</div><div class="cmp-v">有複雜系統整合需求、高合規要求，並已確認應用場景具備商業價值的大型金融機構</div></div></div></div><div class="cmp-note cmp-key"><div class="cmp-note-k">核心差異</div><p>OpenClaw 爆紅的本質是「AI Agent 的平民化」——它把原本需要工程師團隊才能實現的 AI 自動化能力，濃縮成任何人都能在熟悉的訊息 App 上使用的工具。對金融業而言，OpenClaw 適合用來「快速試錯、驗證場景」，一旦確認某個自動化流程真的有價值，再交由 IT 部門以自建方式打造符合資安規範的正式版本。兩者是「先試再建」的關係，而非互相取代。</p></div><div class="cmp-note cmp-biz"><div class="cmp-note-k">金融業應用情境</div><p>用 OpenClaw 在 Slack 上兩小時內試驗「每日金管會法規更新摘要推播」→ 驗證部門同仁真的會看後，再由 IT 以 LangChain 自建符合資安合規標準的正式自動化系統</p></div></div><div class="cmp"><div class="cmp-title">AI Agent vs Autonomous Agent vs Agent Governance</div><p class="cmp-sum">前兩個是同一件事的兩個自主程度，第三個是套在它們外面的控制層——常被並列討論，但不是同一種東西</p><div class="cmp-grid" style="--n:3"><div class="cmp-card"><div class="cmp-head" style="background:#1d4ed8">AI Agent（AI 代理）</div><div class="cmp-row"><div class="cmp-k">是什麼</div><div class="cmp-v">模型加上一組工具、再包進一個由工程師撰寫的迴圈，交辦一件具體任務後自己查、自己判斷、自己執行，做完回報</div></div><div class="cmp-row"><div class="cmp-k">優勢</div><div class="cmp-v">目標明確、迴圈短（幾輪到幾十輪），出事時整串執行步驟調得出來，追查成本低</div></div><div class="cmp-row"><div class="cmp-k">劣勢</div><div class="cmp-v">仍會實際動手（寄送、寫入、下單），風險上限已經從「說錯話」變成「做錯事」</div></div><div class="cmp-row"><div class="cmp-k">適合</div><div class="cmp-v">邊界清楚、成果驗得出來的多步驟流程（對帳、資料整理、報表產出）</div></div></div><div class="cmp-card"><div class="cmp-head" style="background:#1e293b">Autonomous Agent（自主代理）</div><div class="cmp-row"><div class="cmp-k">是什麼</div><div class="cmp-v">同樣的模型、工具、迴圈，只是把三個旋鈕轉到底：目標寫得更模糊、輪數上限拉高、人工確認點拿掉，連「要做哪些事」都讓它自己決定</div></div><div class="cmp-row"><div class="cmp-k">優勢</div><div class="cmp-v">不需要人持續交辦，適合長期盯梢型的任務；能自己拆目標、排優先順序</div></div><div class="cmp-row"><div class="cmp-k">劣勢</div><div class="cmp-v">錯誤會沿著迴圈累積——第 200 步基於第 12 步的誤判，但每一步單獨看都合理；中間沒人看過，追查能力等於斷掉</div></div><div class="cmp-row"><div class="cmp-k">適合</div><div class="cmp-v">低風險、可逆、不碰客戶資料的觀察型任務（產業動態盯梢、資訊蒐集）</div></div></div><div class="cmp-card"><div class="cmp-head" style="background:#ea580c">Agent Governance（代理治理）</div><div class="cmp-row"><div class="cmp-k">是什麼</div><div class="cmp-v">不是另一種代理，而是套在代理外面的六道控制：輸入檢查、下指令前攔查、結果回填時再攔、對外連線白名單、偏離偵測、不可逆動作停下來等人簽核，外加全程留痕</div></div><div class="cmp-row"><div class="cmp-k">優勢</div><div class="cmp-v">把治理對象從「它說得準不準」換成四個可稽核的問題：能碰什麼、能做幾步、誰能中止、事後查不查得到</div></div><div class="cmp-row"><div class="cmp-k">劣勢</div><div class="cmp-v">六道要一起上才有意義，單押任何一道都只擋掉一部分；且屬設計階段的工作，事後補很貴</div></div><div class="cmp-row"><div class="cmp-k">適合</div><div class="cmp-v">任何要正式上線、會碰到內部系統或客戶資料的代理，不分自主程度</div></div></div></div><div class="cmp-note cmp-key"><div class="cmp-note-k">核心差異</div><p>AI Agent 和 Autonomous Agent 之間沒有清楚的分界線，差的是三個程度：目標顆粒度、迴圈長度、人看的頻率——自主性是一個連續的旋鈕，不是開關。Agent Governance 則不在這條線上，它是決定「這個旋鈕可以轉到第幾格」的那套控制。實務上的順序是：先問這個任務值得轉到第幾格，再依照那一格的風險把六道防線補齊，而不是先建代理、之後再想怎麼管。</p></div><div class="cmp-note cmp-biz"><div class="cmp-note-k">金融業應用情境</div><p>AI Agent：自動比對三家財報數字並產出草稿表格（產出物經人覆核才發出）。Autonomous Agent：持續盯監理機關公告與同業動態，有事才通知（唯讀、不外送）。Agent Governance：不論上面哪一種，工具清單先砍到最小、對外連線走白名單、寄送與寫入前停下來等簽核、每一輪留紀錄</p></div></div></section>
+        
 
         <div class="text-center pt-3 border-t border-slate-200">
             <a href="../classroom.html#terms" class="text-sm text-gray-400 hover:text-blue-600 transition-colors">回名詞圖 →</a>
