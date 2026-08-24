@@ -467,7 +467,7 @@ function buildD(tax, prof, cap) {
   };
 }
 
-let D, GROUPS, ME, CAPS, TOUCH, GOAL, T, P, C, MCAPS, M, CAP2M, ALL_QS;
+let D, GROUPS, ME, CAPS, TOUCH, GOAL, T, P, C, MCAPS, M, CAP2M, ALL_QS, SECTORS;
 
 
 /* =========================================================================
@@ -1011,10 +1011,10 @@ function filtersHTML(g) {
 }
 
 /* 事業別：照組織層級排，不照筆數——讀者是照「金控／銀行／證券…」的心智模型在找 */
-const SECTORS = ['金控', '銀行', '證券', '人壽', '產險', '投信', '期貨']
+const SECTOR_ORDER = ['金控', '銀行', '證券', '人壽', '產險', '投信', '期貨'];
+const buildSectors = () => SECTOR_ORDER
   .filter(x => D.rows.some(r => r.sector === x))
-  .concat([...new Set(D.rows.map(r => r.sector))].filter(x =>
-    !['金控', '銀行', '證券', '人壽', '產險', '投信', '期貨'].includes(x)))
+  .concat([...new Set(D.rows.map(r => r.sector))].filter(x => !SECTOR_ORDER.includes(x)))
   .map(x => ({id: x, name: x, color: 'var(--navy)', def: x + '：依事業體分類，不是集團層級'}));
 
 /* 子公司只在單家詳頁出現：金控底下銀行／證券／人壽的推進節奏差很多，
@@ -1091,6 +1091,7 @@ async function boot() {
   M = Object.fromEntries(MCAPS.map(x => [x.id, x]));
   CAP2M = Object.fromEntries(MCAPS.flatMap(m => m.src.map(x => [x, m.id])));
   ALL_QS = quarterRange(D.rows.flatMap(datesOf));
+  SECTORS = buildSectors();
   who = ME;
   render();
 }
