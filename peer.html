@@ -122,7 +122,7 @@ a{color:inherit}
 .lad-g.me{color:var(--accent)}
 .lad-s{width:4.75rem;flex-shrink:0}
 .lad-m{width:8.5rem;flex-shrink:0;font-size:.75rem;color:var(--muted);font-variant-numeric:tabular-nums}
-.lad-more{flex-shrink:0;font-size:.75rem;font-weight:600;color:var(--ai);opacity:0;transition:opacity .12s}
+.lad-more{flex-shrink:0;width:3.75rem;text-align:right;font-size:.75rem;font-weight:600;color:var(--ai);opacity:0;transition:opacity .12s}
 .lad:hover .lad-more{opacity:1}
 .qstrip{flex:1;display:flex;gap:2px;min-width:8rem}
 .qcell{flex:1;height:14px;border-radius:3px;background:var(--rule-soft);min-width:6px}
@@ -619,7 +619,7 @@ function panorama(g, rows) {
       <span class="qkey done"></span> 該季有已導入佐證　<span class="qkey claim"></span> 只有宣示中
       <span class="qkey stop"></span> 暫停　<span class="qkey"></span> 該季無動作。點長條看那一季的佐證，點能力項名看定義。</p>
     <div class="lad-wrap thin"><div class="lad-inner">
-      ${ALL_QS.length ? `<div class="qaxis"><span class="qaxis-spacer" style="width:22rem">能力項／狀態／首次導入</span><span class="qaxis-track">${ALL_QS.map((q, i) => `<span class="${i === 0 || q.endsWith('Q1') ? 'yr' : ''}">${esc(q)}</span>`).join('')}</span></div>` : ''}
+      ${ALL_QS.length ? `<div class="qaxis"><span class="qaxis-spacer" style="width:25.5rem">能力項／狀態／首次導入</span><span class="qaxis-track">${ALL_QS.map((q, i) => `<span class="${i === 0 || q.endsWith('Q1') ? 'yr' : ''}">${esc(q)}</span>`).join('')}</span></div>` : ''}
       ${bands}
     </div></div>`;
 }
@@ -668,7 +668,7 @@ function ladder(sel) {
       <span class="qkey done"></span> 該季有已導入佐證　<span class="qkey claim"></span> 只有宣示中
       <span class="qkey stop"></span> 暫停　<span class="qkey"></span> 該季無動作。點長條看佐證。</p>
     <div class="lad-wrap thin"><div class="lad-inner">
-      ${ALL_QS.length ? `<div class="qaxis"><span class="qaxis-spacer">集團／狀態／首次導入</span><span class="qaxis-track">${ALL_QS.map((q, i) => `<span class="${i === 0 || q.endsWith('Q1') ? 'yr' : ''}">${esc(q)}</span>`).join('')}</span></div>` : ''}
+      ${ALL_QS.length ? `<div class="qaxis"><span class="qaxis-spacer">集團／狀態／首次導入</span><span class="qaxis-track">${ALL_QS.map((q, i) => `<span class="${i === 0 || q.endsWith('Q1') ? 'yr' : ''}">${esc(q)}</span>`).join('')}</span><span style="width:3.75rem;flex-shrink:0"></span></div>` : ''}
       ${rows || '<p class="empty">尚無佐證</p>'}
     </div></div>
     ${idle.length ? `<p class="footnote" style="margin-top:.875rem;padding-top:.75rem;border-top:1px solid var(--rule)">
